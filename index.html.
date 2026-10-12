@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GEO Entity Engine | Matriz Semântica de Entidades</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <span class="h-3 w-3 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span class="text-base sm:text-lg font-bold tracking-tight text-white">GEO Entity Engine</span>
+        <span class="text-xs px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hidden sm:inline">Missão 2</span>
+      </div>
+      <div id="activeProfileBadge" class="hidden text-xs bg-slate-800 border border-slate-700 px-3 py-1 rounded-full text-slate-300 font-medium flex items-center gap-2">
+        <span id="badgeIcon">📍</span>
+        <span id="badgeText">Comércio Local</span>
+        <button id="btnTrocarPerfil" class="text-emerald-400 hover:text-emerald-300 ml-2 font-semibold">Trocar</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ETAPA 1: Landing de Seleção -->
+  <section id="landingStep" class="max-w-6xl mx-auto px-4 py-12 flex-1 flex flex-col justify-center">
+    <div class="text-center max-w-3xl mx-auto mb-10 space-y-3">
+      <h1 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">Qual é o formato da sua entidade?</h1>
+      <p class="text-slate-400 text-sm sm:text-base">Selecione o modelo do seu negócio para calibrar os atributos semânticos exigidos pelos motores de busca e inteligências artificiais.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-4xl mx-auto w-full">
+      <button onclick="selectProfile('local_comercio')" class="group text-left p-6 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-emerald-500/50 hover:bg-slate-900 transition flex flex-col justify-between">
+        <div class="space-y-3">
+          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition">🏪</div>
+          <h2 class="text-lg font-bold text-white group-hover:text-emerald-400 transition">Comércio & Negócio Local</h2>
+          <p class="text-xs text-slate-400 leading-relaxed">Ponto comercial fixo com atendimento presencial ao público. Restaurantes, oficinas mecânicas, padarias e lojas.</p>
+        </div>
+        <div class="pt-4 mt-4 border-t border-slate-800/80 flex items-center justify-between text-xs font-semibold text-emerald-400">
+          <span>Configurar Entidade Local</span><span>→</span>
+        </div>
+      </button>
+
+      <button onclick="selectProfile('prestador_servico')" class="group text-left p-6 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-emerald-500/50 hover:bg-slate-900 transition flex flex-col justify-between">
+        <div class="space-y-3">
+          <div class="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition">🛠️</div>
+          <h2 class="text-lg font-bold text-white group-hover:text-sky-400 transition">Prestador de Serviço / Autônomo</h2>
+          <p class="text-xs text-slate-400 leading-relaxed">Atendimento em domicílio ou por região sem necessidade de ponto aberto. Pintores, eletricistas, encanadores e diaristas.</p>
+        </div>
+        <div class="pt-4 mt-4 border-t border-slate-800/80 flex items-center justify-between text-xs font-semibold text-sky-400">
+          <span>Configurar Prestador</span><span>→</span>
+        </div>
+      </button>
+
+      <button onclick="selectProfile('profissional_liberal')" class="group text-left p-6 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-emerald-500/50 hover:bg-slate-900 transition flex flex-col justify-between">
+        <div class="space-y-3">
+          <div class="w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition">⚖️</div>
+          <h2 class="text-lg font-bold text-white group-hover:text-violet-400 transition">Profissional Liberal Regulamentado</h2>
+          <p class="text-xs text-slate-400 leading-relaxed">Atuação com conselho de classe ou registro formal obrigatório. Médicos, advogados, contadores e dentistas.</p>
+        </div>
+        <div class="pt-4 mt-4 border-t border-slate-800/80 flex items-center justify-between text-xs font-semibold text-violet-400">
+          <span>Configurar com Credencial</span><span>→</span>
+        </div>
+      </button>
+
+      <button onclick="selectProfile('especialista_digital')" class="group text-left p-6 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-emerald-500/50 hover:bg-slate-900 transition flex flex-col justify-between">
+        <div class="space-y-3">
+          <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition">💡</div>
+          <h2 class="text-lg font-bold text-white group-hover:text-amber-400 transition">Especialista Digital & Negócio Online</h2>
+          <p class="text-xs text-slate-400 leading-relaxed">Autoridade remota, infoprodutos, consultorias e lojas online sem endereço físico de atendimento ao público.</p>
+        </div>
+        <div class="pt-4 mt-4 border-t border-slate-800/80 flex items-center justify-between text-xs font-semibold text-amber-400">
+          <span>Configurar Autoridade Digital</span><span>→</span>
+        </div>
+      </button>
+    </div>
+  </section>
+
+  <!-- ETAPA 2: Painel do Motor -->
+  <main id="appStep" class="hidden max-w-7xl mx-auto px-4 py-8 flex-1">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      
+      <section class="lg:col-span-7 space-y-6">
+        <form id="engineForm" class="space-y-6">
+          <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-5 shadow-sm space-y-4">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-400">01. Identificação da Entidade</h3>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Mentor / Lead Ref *</label>
+                <input type="text" id="mentorRef" required placeholder="ex: roni-aluno ou lead@email.com" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Tipo Primário Schema.org *</label>
+                <select id="schemaType" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500"></select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1" id="labelName">Nome Fantasia / Entidade *</label>
+                <input type="text" id="name" required placeholder="ex: Oficina Mecânica Santos" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Telefone / WhatsApp Comercial *</label>
+                <input type="tel" id="telephone" required placeholder="+55 16 99999-9999" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Site Oficial / Página (URL)</label>
+                <input type="url" id="url" placeholder="https://exemplo.com.br" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1" id="labelEspecialidade">Especialidade Principal *</label>
+                <input type="text" id="specialty" placeholder="ex: Motores a Diesel, Direito Tributário, Pintura Epóxi" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+              </div>
+            </div>
+
+            <div id="fieldCouncilContainer" class="hidden">
+              <label class="block text-xs font-medium text-violet-300 mb-1">Conselho Profissional & Registro *</label>
+              <input type="text" id="councilReg" placeholder="ex: CRM/SP 123456 | OAB/SP 987654 | CREF 012345-G/SP" class="w-full bg-slate-950 border border-violet-900/60 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-violet-500">
+            </div>
+
+            <div id="fieldFoundingContainer" class="hidden">
+              <label class="block text-xs font-medium text-slate-300 mb-1">Ano de Abertura / Em atividade desde</label>
+              <input type="text" id="foundingDate" placeholder="ex: 2012" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">Descrição Otimizada para GEO</label>
+              <textarea id="description" rows="2" placeholder="Descreva os serviços prestados, termos-chave de busca e diferenciais." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500"></textarea>
+            </div>
+          </div>
+
+          <div id="locationCard" class="bg-slate-900/90 border border-slate-800 rounded-xl p-5 shadow-sm space-y-4">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-400" id="locationTitle">02. Endereço Físico & Localização</h3>
+
+            <div id="physicalAddressFields" class="space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-xs font-medium text-slate-300 mb-1">CEP</label>
+                  <input type="text" id="postalCode" placeholder="15990-000" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+                </div>
+                <div class="sm:col-span-2">
+                  <label class="block text-xs font-medium text-slate-300 mb-1">Rua e Número</label>
+                  <input type="text" id="streetAddress" placeholder="Av. Sete de Setembro, 450" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-xs font-medium text-slate-300 mb-1">Bairro</label>
+                  <input type="text" id="addressLocality" placeholder="Centro" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-slate-300 mb-1">Cidade *</label>
+                  <input type="text" id="addressCity" required placeholder="Matão" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-slate-300 mb-1">UF *</label>
+                  <input type="text" id="addressRegion" required maxlength="2" placeholder="SP" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 uppercase focus:outline-none focus:border-emerald-500">
+                </div>
+              </div>
+            </div>
+
+            <div id="serviceAreaField" class="hidden">
+              <label class="block text-xs font-medium text-slate-300 mb-1">Cidades ou Regiões Atendidas (areaServed)</label>
+              <input type="text" id="areaServed" placeholder="ex: Matão, Araraquara, São Carlos e Região" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+            </div>
+          </div>
+
+          <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-5 shadow-sm space-y-4">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-400">03. Ecossistema Conectado (sameAs)</h3>
+
+            <div class="space-y-3">
+              <div id="fieldGoogleContainer">
+                <label class="block text-xs font-medium text-slate-300 mb-1">Link do Google Maps / Google Perfil de Empresa</label>
+                <input type="url" id="linkGoogle" placeholder="https://maps.google.com/?cid=..." class="sameas-input w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+              </div>
+
+              <div id="fieldFoodDeliveryContainer" class="hidden">
+                <label class="block text-xs font-medium text-slate-300 mb-1">iFood / Plataforma Delivery</label>
+                <input type="url" id="linkIfood" placeholder="https://www.ifood.com.br/delivery/..." class="sameas-input w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-medium text-slate-300 mb-1">Instagram</label>
+                  <input type="url" id="linkInstagram" placeholder="https://instagram.com/usuario" class="sameas-input w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-slate-300 mb-1">LinkedIn / Portfólio</label>
+                  <input type="url" id="linkLinkedin" placeholder="https://linkedin.com/in/usuario" class="sameas-input w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-medium text-slate-300 mb-1">YouTube</label>
+                  <input type="url" id="linkYoutube" placeholder="https://youtube.com/@canal" class="sameas-input w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-slate-300 mb-1">Facebook</label>
+                  <input type="url" id="linkFacebook" placeholder="https://facebook.com/pagina" class="sameas-input w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex flex-col sm:flex-row gap-3 pt-2">
+            <button type="button" id="btnPreview" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-100 font-semibold py-3 px-4 rounded-xl border border-slate-700 transition">
+              <span>Recalcular Schema</span>
+            </button>
+            <button type="submit" id="btnSubmit" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 px-4 rounded-xl transition shadow-lg shadow-emerald-950/40">
+              <span>Gerar & Enviar para Automação</span>
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section class="lg:col-span-5 space-y-6">
+        <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-5 shadow-sm space-y-4 lg:sticky lg:top-24">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+            <div>
+              <h3 class="text-sm font-semibold uppercase tracking-wider text-slate-200">Script Semântico Pronto</h3>
+              <p class="text-xs text-slate-400">Tag &lt;script type="application/ld+json"&gt;</p>
+            </div>
+            <button id="btnCopy" class="text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-medium px-3 py-1.5 rounded-lg transition">
+              Copiar Tag
+            </button>
+          </div>
+
+          <div class="bg-slate-950 border border-slate-800 rounded-lg p-3 overflow-hidden">
+            <pre id="jsonPreview" class="text-xs text-emerald-400 overflow-x-auto max-h-[500px] p-2 leading-relaxed font-mono">Preencha os campos para compilar o código.</pre>
+          </div>
+
+          <div id="statusBox" class="hidden text-xs rounded-lg p-3.5 border transition"></div>
+
+          <a href="https://search.google.com/test/rich-results" target="_blank" rel="noopener noreferrer" class="text-center text-xs font-medium text-slate-400 hover:text-emerald-400 border border-slate-800 hover:border-slate-700 py-2.5 rounded-lg transition block">
+            Testar no Rich Results Test (Google) ↗
+          </a>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>

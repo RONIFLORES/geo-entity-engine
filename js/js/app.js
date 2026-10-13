@@ -30,6 +30,7 @@ const statusBox = document.getElementById("statusBox");
 export function selectProfile(profileKey) {
   selectedProfileKey = profileKey;
   const config = PROFILES[profileKey];
+  if (!config) return;
 
   landingStep.classList.add("hidden");
   appStep.classList.remove("hidden");
@@ -61,13 +62,29 @@ export function selectProfile(profileKey) {
   updatePreview();
 }
 
+// Vincula ao objeto global window para suportar chamadas inline
 window.selectProfile = selectProfile;
 
-btnTrocarPerfil.addEventListener("click", () => {
-  appStep.classList.add("hidden");
-  activeProfileBadge.classList.add("hidden");
-  landingStep.classList.remove("hidden");
+// Adiciona ouvintes diretos em cada botão da landing page
+document.addEventListener("DOMContentLoaded", () => {
+  const btnComercio = document.querySelector("button[onclick*='local_comercio']");
+  const btnPrestador = document.querySelector("button[onclick*='prestador_servico']");
+  const btnLiberal = document.querySelector("button[onclick*='profissional_liberal']");
+  const btnDigital = document.querySelector("button[onclick*='especialista_digital']");
+
+  if (btnComercio) btnComercio.addEventListener("click", () => selectProfile("local_comercio"));
+  if (btnPrestador) btnPrestador.addEventListener("click", () => selectProfile("prestador_servico"));
+  if (btnLiberal) btnLiberal.addEventListener("click", () => selectProfile("profissional_liberal"));
+  if (btnDigital) btnDigital.addEventListener("click", () => selectProfile("especialista_digital"));
 });
+
+if (btnTrocarPerfil) {
+  btnTrocarPerfil.addEventListener("click", () => {
+    appStep.classList.add("hidden");
+    activeProfileBadge.classList.add("hidden");
+    landingStep.classList.remove("hidden");
+  });
+}
 
 function buildSchemaObject() {
   const config = PROFILES[selectedProfileKey];
@@ -107,17 +124,17 @@ function buildSchemaObject() {
     }
   }
 
-  if (config.showCouncil) {
+  if (config && config.showCouncil) {
     const council = document.getElementById("councilReg").value.trim();
     if (council) schema["hasCredential"] = council;
   }
 
-  if (config.showFounding) {
+  if (config && config.showFounding) {
     const fDate = document.getElementById("foundingDate").value.trim();
     if (fDate) schema["foundingDate"] = fDate;
   }
 
-  if (config.showPhysicalAddress) {
+  if (config && config.showPhysicalAddress) {
     const city = document.getElementById("addressCity").value.trim();
     const uf = document.getElementById("addressRegion").value.trim().toUpperCase();
     const street = document.getElementById("streetAddress").value.trim();
@@ -136,7 +153,7 @@ function buildSchemaObject() {
     }
   }
 
-  if (config.showServiceArea) {
+  if (config && config.showServiceArea) {
     const area = document.getElementById("areaServed").value.trim();
     if (area) schema["areaServed"] = area;
   }
@@ -155,70 +172,74 @@ function buildSchemaObject() {
 function updatePreview() {
   const schema = buildSchemaObject();
   const scriptTag = `<script type="application/ld+json">\n${JSON.stringify(schema, null, 2)}\n<\/script>`;
-  jsonPreview.textContent = scriptTag;
+  if (jsonPreview) jsonPreview.textContent = scriptTag;
   return { schema, scriptTag };
 }
 
-btnPreview.addEventListener("click", updatePreview);
-form.addEventListener("input", updatePreview);
+if (btnPreview) btnPreview.addEventListener("click", updatePreview);
+if (form) form.addEventListener("input", updatePreview);
 
-btnCopy.addEventListener("click", async () => {
-  const { scriptTag } = updatePreview();
-  try {
-    await navigator.clipboard.writeText(scriptTag);
-    const originalText = btnCopy.textContent;
-    btnCopy.textContent = "Copiado!";
-    setTimeout(() => btnCopy.textContent = originalText, 2000);
-  } catch (err) {
-    alert("Erro ao copiar.");
-  }
-});
+if (btnCopy) {
+  btnCopy.addEventListener("click", async () => {
+    const { scriptTag } = updatePreview();
+    try {
+      await navigator.clipboard.writeText(scriptTag);
+      const originalText = btnCopy.textContent;
+      btnCopy.textContent = "Copiado!";
+      setTimeout(() => btnCopy.textContent = originalText, 2000);
+    } catch (err) {
+      alert("Erro ao copiar.");
+    }
+  });
+}
 
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
+if (form) {
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-  const mentorRef = document.getElementById("mentorRef").value.trim();
-  if (!mentorRef) {
-    alert("Informe o Mentor / Lead Ref.");
-    return;
-  }
-
-  const { schema, scriptTag } = updatePreview();
-
-  btnSubmit.disabled = true;
-  btnSubmit.innerHTML = `<span>Enviando para Automação...</span>`;
-
-  const payload = {
-    tipoEvento: "schema_gerado",
-    dataHora: new Date().toISOString(),
-    perfilSegmentado: selectedProfileKey,
-    mentorRef: mentorRef,
-    nomeEntidade: schema.name,
-    telefone: schema.telephone || "",
-    schemaJsonLd: schema,
-    scriptTag: scriptTag
-  };
-
-  try {
-    if (MAKE_WEBHOOK_URL.includes("SEU_WEBHOOK")) {
-      throw new Error("Configure a URL do Webhook no arquivo js/config.js.");
+    const mentorRef = document.getElementById("mentorRef").value.trim();
+    if (!mentorRef) {
+      alert("Informe o Mentor / Lead Ref.");
+      return;
     }
 
-    const res = await fetch(MAKE_WEBHOOK_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
+    const { schema, scriptTag } = updatePreview();
 
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    btnSubmit.disabled = true;
+    btnSubmit.innerHTML = `<span>Enviando para Automação...</span>`;
 
-    statusBox.className = "text-xs rounded-lg p-3 border bg-emerald-500/10 border-emerald-500/20 text-emerald-300 block";
-    statusBox.textContent = "Sucesso: Dados da entidade e script gerados e sincronizados com a automação!";
-  } catch (err) {
-    statusBox.className = "text-xs rounded-lg p-3 border bg-amber-500/10 border-amber-500/20 text-amber-300 block";
-    statusBox.textContent = `Aviso: ${err.message}. Seu código JSON-LD continua disponível para cópia manual acima.`;
-  } finally {
-    btnSubmit.disabled = false;
-    btnSubmit.innerHTML = `<span>Gerar & Enviar para Automação</span>`;
-  }
-});
+    const payload = {
+      tipoEvento: "schema_gerado",
+      dataHora: new Date().toISOString(),
+      perfilSegmentado: selectedProfileKey,
+      mentorRef: mentorRef,
+      nomeEntidade: schema.name,
+      telefone: schema.telephone || "",
+      schemaJsonLd: schema,
+      scriptTag: scriptTag
+    };
+
+    try {
+      if (MAKE_WEBHOOK_URL.includes("SEU_WEBHOOK")) {
+        throw new Error("Configure a URL do Webhook no ficheiro js/config.js.");
+      }
+
+      const res = await fetch(MAKE_WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      statusBox.className = "text-xs rounded-lg p-3 border bg-emerald-500/10 border-emerald-500/20 text-emerald-300 block";
+      statusBox.textContent = "Sucesso: Dados da entidade e script gerados e sincronizados com a automação!";
+    } catch (err) {
+      statusBox.className = "text-xs rounded-lg p-3 border bg-amber-500/10 border-amber-500/20 text-amber-300 block";
+      statusBox.textContent = `Aviso: ${err.message}. O seu código JSON-LD continua disponível para cópia manual acima.`;
+    } finally {
+      btnSubmit.disabled = false;
+      btnSubmit.innerHTML = `<span>Gerar & Enviar para Automação</span>`;
+    }
+  });
+}

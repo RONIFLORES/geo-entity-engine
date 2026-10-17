@@ -1,23 +1,82 @@
-body {
-  font-family: 'Inter', sans-serif;
+/* ==========================================================================
+   GEO ENTITY ENGINE (APP 1A) - ESTILOS COMPLEMENTARES & UX MOBILE/DARK MODE
+   ========================================================================== */
+
+:root {
+  color-scheme: dark;
 }
 
-pre, code {
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: #020617;
+  color: #f1f5f9;
+  overflow-x: hidden;
+}
+
+.font-mono {
   font-family: 'JetBrains Mono', monospace;
 }
 
-/* Scrollbar escura para a caixa de código */
-pre::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+/* 1. Animação suave na troca de Blocos do Wizard / Stepper */
+#wizardStepContainer {
+  animation: fadeStepIn 0.22s ease-out;
 }
-pre::-webkit-scrollbar-track {
-  background: #020617;
+
+@keyframes fadeStepIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-pre::-webkit-scrollbar-thumb {
-  background: #1e293b;
-  border-radius: 4px;
+
+/* 2. Correção nativa de seletores de Horário (Time) e Inputs no Tema Escuro */
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.85) sepia(1) saturate(3) hue-rotate(110deg);
+  cursor: pointer;
+  opacity: 0.85;
+  transition: opacity 0.15s ease;
 }
-pre::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+
+input[type="time"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* 3. Suporte Mobile (Touch) para os Ícones Informativos ( i ) */
+.group:focus-within > span.pointer-events-none,
+.group:active > span.pointer-events-none {
+  opacity: 1 !important;
+}
+
+/* 4. Barra de rolagem fina e discreta para a régua de Pílulas dos Blocos */
+#stepPillsContainer {
+  scrollbar-width: thin;
+  scrollbar-color: #1e293b transparent;
+}
+
+#stepPillsContainer::-webkit-scrollbar {
+  height: 5px;
+}
+
+#stepPillsContainer::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#stepPillsContainer::-webkit-scrollbar-thumb {
+  background-color: #1e293b;
+  border-radius: 9999px;
+}
+
+/* 5. Destaque de foco acessível nos campos de preenchimento */
+input:focus,
+select:focus,
+textarea:focus {
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.15);
 }

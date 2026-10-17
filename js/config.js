@@ -2887,3 +2887,557 @@ export const PROFILES = {
             label: "2. Nome do Especialista ou Nome Fantasia da Operação Digital *",
             type: "text",
             required: true,
+            schemaProp: "name",
+            placeholder: "Ex: Maria Luiza ou Agência Escala Digital",
+            tooltip: "O nome principal pelo qual o público, seguidores e alunos buscam você na internet."
+          },
+          {
+            id: "razao_social",
+            label: "3. Razão Social da Empresa Operadora",
+            type: "text",
+            required: false,
+            allowOmit: true,
+            omitLabel: "Omitir / Opera como Pessoa Física",
+            schemaProp: "legalName",
+            placeholder: "Ex: Hercules Treinamentos & Soluções Digitais Ltda",
+            tooltip: "Nome registrado no contrato social ou MEI que formaliza a operação."
+          },
+          {
+            id: "documento_fiscal_digital",
+            label: "4. CNPJ da Empresa ou CPF Operacional",
+            type: "text",
+            required: false,
+            allowOmit: true,
+            omitLabel: "Omitir dado fiscal do código público",
+            schemaProp: "taxID",
+            placeholder: "00.000.000/0000-00 ou 000.000.000-00",
+            tooltip: "Segurança e Privacidade: Este dado não fica visível em texto aberto para quem lê a página. Ele é inserido de forma invisível no código interno para que os motores de IA comprovem que a empresa é legalmente constituída e idônea."
+          },
+          {
+            id: "whatsapp_principal",
+            label: "5.1 WhatsApp Comercial / Link Direto de Suporte *",
+            type: "phone",
+            required: true,
+            defaultPrefix: "+55 ",
+            schemaProp: "telephone",
+            placeholder: "Ex: +55 16 99999-6666",
+            tooltip: "Prefixo padrão +55 editável, sem travas."
+          },
+          {
+            id: "email_comercial",
+            label: "5.2 E-mail Oficial de Atendimento e Suporte *",
+            type: "email",
+            required: true,
+            schemaProp: "email",
+            placeholder: "contato@roniflores.com.br ou suporte@plataforma.com",
+            tooltip: "Campo obrigatório para atendimento e suporte oficial."
+          },
+          {
+            id: "telegram_comercial",
+            label: "5.3 Canal ou Grupo Oficial no Telegram",
+            type: "text",
+            required: false,
+            allowOmit: true,
+            omitLabel: "Omitir",
+            placeholder: "https://t.me/comunidade_oficial",
+            tooltip: "Link do canal ou grupo oficial no Telegram."
+          },
+          {
+            id: "ano_fundacao",
+            label: "6. Tempo de Atuação no Mercado Digital / Ano de Lançamento *",
+            type: "select",
+            required: true,
+            schemaProp: "foundingDate",
+            options: generateYearsList(30, "Mais de 30 anos (Pioneiro digital/corporativo)"),
+            tooltip: "Demonstra para a inteligência artificial o tempo de consistência e experiência da sua operação online."
+          },
+          {
+            id: "descricao_otimizada",
+            label: "7. Apresentação Otimizada do Especialista / Empresa para a IA *",
+            type: "textarea",
+            required: true,
+            minLength: 150,
+            maxLength: 350,
+            schemaProp: "description",
+            placeholder: "Mentor de negócios e especialista em GEO (Generative Engine Optimization) e Inteligência Artificial para PMEs. Criador da metodologia de Mini-Apps de Conversão, capacitando empreendedores a conquistarem as primeiras posições em recomendações no ChatGPT, Gemini e Perplexity.",
+            tooltip: "Resumo direto em linguagem factual que as IAs devoram: quem você é + o método que ensina + a transformação gerada + para quem se destina."
+          }
+        ]
+      },
+
+      // BLOCO 02
+      {
+        stepNumber: 2,
+        id: "bloco_02_topicos_metodologia_digital",
+        title: "BLOCO 02: TÓPICOS DE DOMÍNIO, AUTORIDADE SEMÂNTICA & METODOLOGIA",
+        subtitle: "O coração do perfil digital: ensina às IAs sobre quais temas você é a autoridade máxima de mercado.",
+        fields: [
+          {
+            id: "topicos_dominio_knowsabout",
+            label: "1. Tópicos e Conceitos de Domínio Absoluto (Áreas de Notoriedade - Até 8 termos separados por vírgula) *",
+            type: "text",
+            required: true,
+            maxLength: 250,
+            schemaProp: "knowsAbout",
+            placeholder: "Ex: Tráfego Pago Local, Inteligência Artificial para Vendas, Copywriting Direto, Automação de Processos, Dropshipping Nacional",
+            tooltip: "Essas palavras-chave definem a sua entidade semântica. Quando alguém pedir à IA: 'indique os maiores especialistas em [Tópico]', é aqui que ela busca."
+          },
+          {
+            id: "possui_metodo_autoral",
+            label: "2. Metodologia Proprietária / Método Autoral com Nome Próprio:",
+            type: "select_with_other",
+            defaultVal: "Possui Método / Framework Próprio",
+            tooltip: "Ter um método nomeado diferencia você de amadores nas respostas comparativas da inteligência artificial.",
+            options: [
+              { val: "Possui Método / Framework Próprio", text: "Possui Método / Framework Próprio" },
+              { val: "Omitir", text: "Omitir / Atua com Metodologias de Mercado" }
+            ]
+          },
+          {
+            id: "nome_metodo_autoral",
+            label: "2.1 Nome Oficial do seu Método / Sistema",
+            type: "text",
+            conditionField: "possui_metodo_autoral",
+            conditionVal: "Possui Método / Framework Próprio",
+            maxLength: 90,
+            placeholder: "Ex: Método GEO Local 360, Framework Lucro Invisível",
+            tooltip: "Nome comercial ou autoral da sua metodologia."
+          },
+          {
+            id: "descricao_metodo_autoral",
+            label: "2.2 Breve Descrição da Lógica do Método",
+            type: "text",
+            conditionField: "possui_metodo_autoral",
+            conditionVal: "Possui Método / Framework Próprio",
+            maxLength: 160,
+            placeholder: "Ex: Processo passo a passo em 4 etapas para transformar empresas físicas em entidades recomendadas por IAs sem gastar com anúncios.",
+            tooltip: "Explicação direta de como o método gera transformação."
+          },
+          {
+            id: "publico_alvo_prioritario_digital",
+            label: "3. Público-Alvo Prioritário da sua Mensagem *",
+            type: "checkbox_group",
+            required: true,
+            schemaProp: "audience",
+            options: [
+              { val: "Empreendedores e Donos de Comércio Local", text: "Empreendedores e Donos de Comércio Local" },
+              { val: "Profissionais Liberais e Autônomos (Médicos, Advogados, etc.)", text: "Profissionais Liberais e Autônomos (Médicos, Advogados, etc.)" },
+              { val: "Iniciantes do Zero no Mercado Digital", text: "Iniciantes do Zero no Mercado Digital" },
+              { val: "Gestores de Tráfego, Designers e Agências", text: "Gestores de Tráfego, Designers e Agências" },
+              { val: "Empresas de Grande Porte / B2B Corporativo", text: "Empresas de Grande Porte / B2B Corporativo" }
+            ],
+            allowOther: true,
+            otherLabel: "Outro Perfil de Público (Máx. 90 caracteres)",
+            otherPlaceholder: "Ex: Pais interessados em desenvolvimento cognitivo infantil",
+            otherMaxLength: 90,
+            tooltip: "Auxilia os robôs a filtrarem sua indicação para o tipo exato de pessoa que busca ajuda."
+          }
+        ]
+      },
+
+      // BLOCO 03
+      {
+        stepNumber: 3,
+        id: "bloco_03_alcance_idiomas_digital",
+        title: "BLOCO 03: ALCANCE GEOGRÁFICO, MERCADO DE ATUAÇÃO & IDIOMAS",
+        subtitle: "Substitui a limitação municipal de CEP por cobertura nacional ou global.",
+        fields: [
+          {
+            id: "escopo_geografico_digital",
+            label: "1. Escopo Geográfico de Venda e Entrega *",
+            type: "select_with_other",
+            required: true,
+            schemaProp: "areaServed",
+            tooltip: "Mostra para a IA que seu produto não possui barreiras físicas de entrega.",
+            options: [
+              { val: "Nacional (Brasil)", text: "Nacional (Atende e vende para todo o Brasil)" },
+              { val: "Comunidade de Língua Portuguesa", text: "Comunidade de Língua Portuguesa (Brasil, Portugal, Angola, Moçambique)" },
+              { val: "Global / Internacional", text: "Global / Internacional (Vendas e consultorias no mundo todo)" },
+              { val: "OTHER", text: "Foco Regional Específico (Ex: Mentor de empresários do Estado de SP)" }
+            ],
+            otherLabel: "Especifique a região de foco (Máx. 90 caracteres)",
+            otherPlaceholder: "Ex: Mentor de empresários do Interior do Estado de São Paulo",
+            otherMaxLength: 90
+          },
+          {
+            id: "idiomas_entrega",
+            label: "2. Idiomas em que os Produtos / Serviços / Suportes são Entregues *",
+            type: "checkbox_group",
+            required: true,
+            schemaProp: "availableLanguage",
+            options: [
+              { val: "Português", text: "Português" },
+              { val: "Inglês", text: "Inglês" },
+              { val: "Espanhol", text: "Espanhol" }
+            ],
+            allowOther: true,
+            otherLabel: "Outros idiomas (Máx. 90 caracteres)",
+            otherPlaceholder: "Ex: Francês e Italiano",
+            otherMaxLength: 90,
+            tooltip: "Permite a recomendação em buscas feitas em outros idiomas."
+          },
+          {
+            id: "moedas_aceitas",
+            label: "3. Moedas Aceitas nas Transações:",
+            type: "checkbox_group",
+            allowOmit: true,
+            omitLabel: "Omitir",
+            schemaProp: "currenciesAccepted",
+            options: [
+              { val: "BRL", text: "Real (BRL)" },
+              { val: "USD", text: "Dólar Americano (USD)" },
+              { val: "EUR", text: "Euro (EUR)" },
+              { val: "Criptoativos", text: "Criptoativos" }
+            ],
+            allowOther: true,
+            otherLabel: "Outra moeda (Máx. 90 caracteres)",
+            otherPlaceholder: "Ex: Libra Esterlina (GBP) via checkout global",
+            otherMaxLength: 90,
+            tooltip: "Informa a flexibilidade financeira do seu ecossistema de checkout."
+          }
+        ]
+      },
+
+      // BLOCO 04
+      {
+        stepNumber: 4,
+        id: "bloco_04_formatos_entrega_digital",
+        title: "BLOCO 04: FORMATOS DE ENTREGA & MODELOS DE NEGÓCIO",
+        subtitle: "Quais são as modalidades práticas em que você entrega o seu conhecimento ou tecnologia.",
+        fields: [
+          {
+            id: "formatos_produtos_digitais",
+            label: "Marque tudo o que faz parte do seu catálogo ativo *",
+            type: "checkbox_group",
+            required: true,
+            options: [
+              { val: "Cursos Online Gravados com Acesso por Área de Membros", text: "Cursos Online Gravados com Acesso por Área de Membros" },
+              { val: "Mentorias em Grupo com Encontros ao Vivo", text: "Mentorias em Grupo com Encontros ao Vivo" },
+              { val: "Consultoria Individual 1 a 1 Estratégica (Online)", text: "Consultoria Individual 1 a 1 Estratégica (Online)" },
+              { val: "Comunidade por Assinatura / Clube de Negócios (Recorrência)", text: "Comunidade por Assinatura / Clube de Negócios (Recorrência)" },
+              { val: "Livros Digitais (E-books), Guias e Manuais Práticos", text: "Livros Digitais (E-books), Guias e Manuais Práticos" },
+              { val: "Softwares / Ferramentas Web / Mini-Apps / SaaS", text: "Softwares / Ferramentas Web / Mini-Apps / SaaS" },
+              { val: "Serviços Feitos Para Você (Done-For-You / Assessoria / Agência)", text: "Serviços Feitos Para Você (Done-For-You / Assessoria / Agência)" },
+              { val: "Palestras e Treinamentos In-Company presenciais ou remotos", text: "Palestras e Treinamentos In-Company presenciais ou remotos" }
+            ],
+            allowOther: true,
+            otherLabel: "Outro formato de entrega (Máx. 90 caracteres)",
+            otherPlaceholder: "Ex: Imersões presenciais de fim de semana e grupos de Mastermind",
+            otherMaxLength: 90,
+            tooltip: "Cada formato marcado alimenta a oferta de serviços da sua entidade nos motores de resposta."
+          }
+        ]
+      },
+
+      // BLOCO 05
+      {
+        stepNumber: 5,
+        id: "bloco_05_vitrine_checkouts_digital",
+        title: "BLOCO 05: VITRINE DE PRODUTOS DIGITAIS & CHECKOUTS (1 A 5 CARROS-CHEFES)",
+        subtitle: "Mapeamento direto dos produtos que você mais vende, com links oficiais de compra.",
+        fields: [
+          {
+            id: "catalogo_destaque",
+            label: "Produtos Digitais / Ofertas Principais (Limite de 5) *",
+            type: "repeater",
+            minItems: 1,
+            maxItems: 5,
+            addButtonText: "+ Adicionar Produto / Oferta",
+            schemaProp: "hasOfferCatalog",
+            tooltip: "Quando um usuário perguntar à IA 'quanto custa o curso de Fulano?' ou 'onde comprar a mentoria X?', a IA utiliza esses dados precisos para responder.",
+            subfields: [
+              { id: "item_nome", label: "1. Nome do Produto ou Treinamento *", placeholder: "Ex: Mentoria GEO de Choque, Mini-App Entity Engine Anual, E-book Guia do Comércio Visível", required: true },
+              { id: "item_formato", label: "2. Tipo de Entrega (Curso, Mentoria, Software, E-book, Consultoria, Comunidade) *", placeholder: "Ex: Mentoria ou Software", required: true },
+              { id: "item_descricao", label: "3. Breve Descrição da Solução (O que resolve e o que entrega) *", placeholder: "Ex: Ecossistema completo com software e tutoriais práticos para colocar empresas nas primeiras respostas das IAs.", maxLength: 160, required: true },
+              { id: "item_preco", label: "4. Faixa de Preço de Venda (Ou deixe vazio para Omitir Preço)", placeholder: "Ex: R$ 497,00 ou R$ 97,00/mês" },
+              { id: "item_url_checkout", label: "5. Link Oficial da Página de Vendas ou Checkout Direto", placeholder: "https://pay.kiwify.com.br/... ou https://hotmart.com/..." },
+              { id: "item_garantia", label: "6. Garantia Incondicional de Reembolso (7 dias, 15 dias, 30 dias ou Condicional)", placeholder: "Ex: 7 dias, 15 dias, 30 dias ou Garantia Condicional por Contrato" }
+            ]
+          }
+        ]
+      },
+
+      // BLOCO 06
+      {
+        stepNumber: 6,
+        id: "bloco_06_prova_social_metricas_digital",
+        title: "BLOCO 06: PROVA SOCIAL, MÉTRICAS DE IMPACTO & CASOS DE SUCESSO",
+        subtitle: "Os números que comprovam para a IA que a sua autoridade é real e chancelada por pessoas de verdade.",
+        fields: [
+          {
+            id: "volume_alunos_clientes",
+            label: "1. Volume de Clientes / Alunos Impactados:",
+            type: "select_with_other",
+            defaultVal: "Omitir",
+            tooltip: "Números agregados fornecem aos motores de busca evidência estatística de autoridade (E-E-A-T). Se estiver no início, use a opção Omitir.",
+            options: [
+              { val: "Omitir", text: "Omitir / Operação Inicial de Alta Exclusividade" },
+              { val: "+ de 100 alunos/clientes", text: "+ de 100 alunos/clientes" },
+              { val: "+ de 500 alunos/clientes", text: "+ de 500 alunos/clientes" },
+              { val: "+ de 1.000 alunos/clientes", text: "+ de 1.000 alunos/clientes" },
+              { val: "+ de 5.000 alunos/clientes", text: "+ de 5.000 alunos/clientes" },
+              { val: "+ de 10.000 alunos/clientes", text: "+ de 10.000 alunos/clientes" },
+              { val: "OTHER", text: "Outra métrica de volume (Especificar)" }
+            ],
+            otherLabel: "Digite sua métrica de alunos/usuários (Máx. 90 caracteres)",
+            otherPlaceholder: "Ex: Mais de 300 mentorados acompanhados individualmente",
+            otherMaxLength: 90
+          },
+          {
+            id: "resultados_gerados_clientes",
+            label: "2. Resultados Financeiros ou Métricas Operacionais Geradas para Clientes:",
+            type: "text",
+            required: false,
+            allowOmit: true,
+            omitLabel: "Omitir",
+            maxLength: 150,
+            placeholder: "Ex: Mais de R$ 2 milhões em faturamento gerados para negócios locais mentorados ou mais de 300 empresas posicionadas nas IAs",
+            tooltip: "Impacto prático gerado para seus clientes."
+          },
+          {
+            id: "link_pagina_depoimentos",
+            label: "3. Página ou Link Oficial de Depoimentos e Casos Reais:",
+            type: "url",
+            required: false,
+            allowOmit: true,
+            omitLabel: "Omitir",
+            placeholder: "https://seusite.com.br/depoimentos ou link de playlist no YouTube",
+            tooltip: "Links de depoimentos em vídeo aumentam a taxa de confiança semântica."
+          }
+        ]
+      },
+
+      // BLOCO 07
+      {
+        stepNumber: 7,
+        id: "bloco_07_presenca_editorial_digital",
+        title: "BLOCO 07: PRESENÇA EDITORIAL, CONTEÚDO PERENE & IMPRENSA",
+        subtitle: "Onde a IA aprende sobre você através de conteúdos públicos indexados na web.",
+        fields: [
+          {
+            id: "link_youtube",
+            label: "Canal Oficial no YouTube (Link do canal onde publica vídeos e aulas)",
+            type: "url",
+            allowOmit: true,
+            omitLabel: "Omitir",
+            placeholder: "https://youtube.com/@seucanal",
+            tooltip: "As IAs cruzam esses links editoriais para criar o seu 'Gráfico de Conhecimento' (Knowledge Graph)."
+          },
+          {
+            id: "link_podcast",
+            label: "Podcast Oficial (Spotify, Apple ou Deezer)",
+            type: "url",
+            allowOmit: true,
+            omitLabel: "Omitir",
+            placeholder: "https://open.spotify.com/show/...",
+            tooltip: "Link do programa de áudio."
+          },
+          {
+            id: "link_blog_newsletter",
+            label: "Newsletter / Blog / Artigos de Fundo (Substack, Medium, Portal Próprio)",
+            type: "url",
+            allowOmit: true,
+            omitLabel: "Omitir",
+            placeholder: "https://seublog.com.br",
+            tooltip: "Link onde publica análises de mercado."
+          },
+          {
+            id: "livros_publicados_amazon",
+            label: "Livros Publicados (Amazon Kindle, Editoras Físicas)",
+            type: "url",
+            allowOmit: true,
+            omitLabel: "Omitir",
+            placeholder: "https://amazon.com.br/...",
+            tooltip: "Link do livro ou perfil de autor na Amazon."
+          },
+          {
+            id: "aparicoes_imprensa_podcasts",
+            label: "Aparições na Mídia, Imprensa ou Entrevistas (G1, Exame, Terra, podcasts de terceiros)",
+            type: "url",
+            allowOmit: true,
+            omitLabel: "Omitir",
+            placeholder: "https://...",
+            tooltip: "Link de matéria ou entrevista comprovando relevância pública."
+          }
+        ]
+      },
+
+      // BLOCO 08
+      {
+        stepNumber: 8,
+        id: "bloco_08_ecossistema_sameas_digital",
+        title: "BLOCO 08: ECOSSISTEMA DIGITAL, PLATAFORMAS & CHECKOUTS (sameAs)",
+        subtitle: "Vínculos públicos de identidade digital para evitar confusão com homônimos e unificar a marca.",
+        fields: [
+          {
+            id: "status_site_oficial",
+            label: "1. Site Canônico / Portal Principal do Negócio *",
+            type: "radio_cards",
+            defaultVal: "possui_ativo",
+            options: [
+              { val: "possui_ativo", text: "Já possuo Site Oficial / Domínio Próprio ativo (abre campo para a URL)" },
+              { val: "em_ativacao", text: "Domínio em processo de ativação (será gerado na próxima etapa do app)" },
+              { val: "nao_possui", text: "Não possuo site institucional próprio (Uso apenas páginas de vendas)" }
+            ],
+            tooltip: "Portal principal do especialista."
+          },
+          {
+            id: "url_site_oficial",
+            label: "URL do Site Oficial ou Nome Pretendido",
+            type: "url",
+            conditionField: "status_site_oficial",
+            conditionNotVal: "nao_possui",
+            schemaProp: "url",
+            placeholder: "Ex: https://www.roniflores.com.br",
+            tooltip: "Domínio oficial."
+          },
+          {
+            id: "link_plataformas_checkout",
+            label: "2.1 Perfil / Loja na Kiwify / Hotmart / Eduzz / Monetizze / Lastlink",
+            type: "url",
+            allowOmit: true,
+            omitLabel: "Omitir",
+            placeholder: "Ex: https://kiwify.com.br/... ou https://lastlink.com/...",
+            tooltip: "Link público de produtor ou vitrine digital."
+          },
+          {
+            id: "link_github_portfolio",
+            label: "2.2 Perfil no GitHub (se for desenvolvedor de software / criador de ferramentas)",
+            type: "url",
+            allowOmit: true,
+            omitLabel: "Omitir",
+            placeholder: "Ex: https://github.com/RONIFLORES",
+            tooltip: "Link do repositório/perfil público no GitHub."
+          },
+          {
+            id: "link_linkedin",
+            label: "2.3 Perfil Comercial no LinkedIn",
+            type: "url",
+            allowOmit: true,
+            omitLabel: "Omitir",
+            placeholder: "Ex: https://linkedin.com/in/seuusuario",
+            tooltip: "Link de autoridade corporativa."
+          },
+          {
+            id: "link_instagram",
+            label: "2.4 Instagram Oficial da Marca / Especialista",
+            type: "url",
+            allowOmit: true,
+            omitLabel: "Omitir",
+            placeholder: "Ex: https://instagram.com/seuusuario",
+            tooltip: "Link com o usuário oficial no Instagram."
+          },
+          {
+            id: "link_twitter_threads",
+            label: "2.5 Perfil no X (Twitter) / Threads",
+            type: "url",
+            allowOmit: true,
+            omitLabel: "Omitir",
+            placeholder: "Ex: https://x.com/seuusuario ou https://threads.net/@seuusuario",
+            tooltip: "Link do perfil no X ou Threads."
+          },
+          {
+            id: "links_extras_sameas",
+            label: "3. Adicionar Outros Canais Digitais (TikTok, Discord, Circle, App Store ou links adicionais)",
+            type: "repeater_simple",
+            maxItems: 5,
+            addButtonText: "+ Adicionar Mais Plataformas",
+            placeholder: "Ex: https://tiktok.com/@...",
+            tooltip: "Botão dinâmico para colar links adicionais."
+          }
+        ]
+      },
+
+      // BLOCO 09 (MÓDULO AVATAR DIGITAL)
+      {
+        stepNumber: 9,
+        id: "bloco_09_avatar_digital",
+        title: "BLOCO 09: MÓDULO AVATAR - O PERFIL DO ALUNO, MENTORADO OU COMPRADOR ONLINE",
+        subtitle: "Psicologia do comprador digital para alimentar a IA, o Construtor de Site (App 1B) e os Anúncios (App 3).",
+        infoBanner: "Psicologia do Consumidor Digital: Na internet, o comprador é bombardeado por ofertas genéricas a cada segundo. Este bloco ancora para a IA o estágio de consciência, o nível de sofisticação e os obstáculos mentais de quem compra o seu produto ou mentoria.",
+        fields: [
+          {
+            id: "avatar_maturidade_digital",
+            label: "1. Momento de Vida e Maturidade no Tema: Qual o nível de bagagem do seu comprador ideal?",
+            type: "checkbox_group",
+            allowOmit: true,
+            omitLabel: "Omitir",
+            options: [
+              { val: "Iniciante Absoluto", text: "Iniciante Absoluto (Está saindo do zero, tem medo da tecnologia e precisa de um passo a passo guiado)" },
+              { val: "Nível Intermediário Travado", text: "Nível Intermediário Travado (Já tentou cursos teóricos, tem conhecimento básico, mas não consegue ter lucro ou escala)" },
+              { val: "Profissional Avançado / Operador de Mercado", text: "Profissional Avançado / Operador de Mercado (Busca otimização de tempo, automações avançadas, sofisticação e networking de alto nível)" }
+            ],
+            allowOther: true,
+            otherLabel: "Outro estágio de maturidade (Máx. 90 caracteres)",
+            otherPlaceholder: "Ex: Donos de negócios tradicionais migrando para o ecossistema digital",
+            otherMaxLength: 90,
+            tooltip: "Nível de consciência e bagagem técnica do aluno."
+          },
+          {
+            id: "avatar_grande_ambicao",
+            label: "2. A Grande Ambição / Promessa Desejada: Qual o maior desejo que move o clique de compra dele?",
+            type: "checkbox_group",
+            allowOmit: true,
+            omitLabel: "Omitir",
+            options: [
+              { val: "Liberdade Geográfica e Financeira", text: "Liberdade Geográfica e Financeira (Trabalhar de onde quiser prestando serviços ou vendendo infoprodutos)" },
+              { val: "Salvação ou Escala do Negócio Próprio", text: "Salvação ou Escala do Negócio Próprio (Conquistar clientes sem ficar escravo de anúncios caros ou de dancinhas no Instagram)" },
+              { val: "Domínio de Novas Tecnologias", text: "Domínio de Novas Tecnologias (Aprender a usar IAs e automações para não ficar obsoleto no mercado)" }
+            ],
+            allowOther: true,
+            otherLabel: "Outro desejo central (Máx. 90 caracteres)",
+            otherPlaceholder: "Ex: Criar uma renda passiva sólida vendendo mini-ferramentas recorrentes",
+            otherMaxLength: 90,
+            tooltip: "Desejo central do comprador."
+          },
+          {
+            id: "avatar_maior_ceticismo",
+            label: "3. O Maior Ceticismo / Objeção Mental: Por que esse cliente hesita antes de passar o cartão?",
+            type: "checkbox_group",
+            allowOmit: true,
+            omitLabel: "Omitir",
+            options: [
+              { val: "Já comprei outros cursos e eram só teorias sem nada prático", text: "\"Já comprei outros cursos e eram só teorias sem nada prático que funcionasse.\"" },
+              { val: "Tenho pouco tempo no meu dia a dia e medo de não conseguir aplicar", text: "\"Tenho pouco tempo no meu dia a dia e medo de não conseguir aplicar o conteúdo.\"" },
+              { val: "Será que esse método funciona para o meu nicho ou cidade específica?", text: "\"Será que esse método funciona para o meu nicho ou cidade específica?\"" },
+              { val: "Medo de pagar caro e não ter suporte direto", text: "\"Medo de pagar caro e não ter suporte direto para tirar dúvidas.\"" }
+            ],
+            allowOther: true,
+            otherLabel: "Outra objeção comum (Máx. 90 caracteres)",
+            otherPlaceholder: "Ex: Acha que precisa saber programar código complexo para ter resultados",
+            otherMaxLength: 90,
+            tooltip: "Objeções mentais que o seu método supera."
+          },
+          {
+            id: "avatar_estilo_linguagem",
+            label: "4. Estilo de Linguagem & Conexão: Como a sua cópia e comunicação conversam com ele?",
+            type: "checkbox_group",
+            allowOmit: true,
+            omitLabel: "Omitir",
+            options: [
+              { val: "Linguagem Prática, Pé no Chão e Direta", text: "Linguagem Prática, Pé no Chão e Direta (Foco em ferramentas práticas, sem enrolação, atalhos milagrosos ou ostentação)" },
+              { val: "Linguagem Corporativa, Estratégica e Analítica", text: "Linguagem Corporativa, Estratégica e Analítica (Foco em métricas, ROI, processos e governança)" },
+              { val: "Linguagem Inspiradora, Motivacional e Transformadora", text: "Linguagem Inspiradora, Motivacional e Transformadora (Foco em superação pessoal, disciplina e liderança)" }
+            ],
+            allowOther: true,
+            otherLabel: "Outro tom de voz (Máx. 90 caracteres)",
+            otherPlaceholder: "Ex: Linguagem técnica para desenvolvedores e arquitetos de soluções",
+            otherMaxLength: 90,
+            tooltip: "Tom de comunicação ideal."
+          },
+          {
+            id: "avatar_raiox_livre",
+            label: "5. Raio-X Livre do Comprador Digital Ideal (Campo Aberto Opcional)",
+            type: "textarea",
+            required: false,
+            allowOmit: true,
+            omitLabel: "Omitir Raio-X Livre",
+            maxLength: 300,
+            placeholder: "Ex: Empreendedores locais e mentores entre 28 e 50 anos que estão cansados de cursos teóricos e querem softwares e processos prontos para gerar autoridade no Google e nas IAs rapidamente.",
+            tooltip: "Síntese aberta em até 300 caracteres sobre o comprador digital ideal."
+          }
+        ]
+      }
+    ]
+  }
+};

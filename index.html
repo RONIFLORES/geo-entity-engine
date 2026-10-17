@@ -7,250 +7,336 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./css/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    /* Scrollbar sutil para blocos de código e listas */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #020617; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #334155; }
+  </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen antialiased flex flex-col">
+<body class="bg-slate-950 text-slate-100 min-h-screen antialiased flex flex-col selection:bg-emerald-500/30 selection:text-emerald-200">
 
-  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-30">
-    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+  <!-- CABEÇALHO GLOBAL FIXO -->
+  <header class="border-b border-slate-800/80 bg-slate-900/85 backdrop-blur-md sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between gap-3">
       <div class="flex items-center space-x-3">
-        <span class="h-3 w-3 rounded-full bg-emerald-500 animate-pulse"></span>
-        <span class="text-base sm:text-lg font-bold tracking-tight text-white">GEO Entity Engine</span>
-        <span class="text-xs px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hidden sm:inline">Missão 2</span>
+        <span class="h-3 w-3 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_12px_#10b981]"></span>
+        <span class="text-base sm:text-lg font-extrabold tracking-tight text-white">GEO Entity Engine</span>
+        <span class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hidden sm:inline">App 1A • Matriz Semântica</span>
       </div>
-      <div id="activeProfileBadge" class="hidden text-xs bg-slate-800 border border-slate-700 px-3 py-1 rounded-full text-slate-300 font-medium flex items-center gap-2">
-        <span id="badgeIcon">📍</span>
-        <span id="badgeText">Comércio Local</span>
-        <button id="btnTrocarPerfil" class="text-emerald-400 hover:text-emerald-300 ml-2 font-semibold">Trocar</button>
+
+      <!-- Indicadores de Status e Perfil Ativo -->
+      <div class="flex items-center gap-3">
+        <div id="autoSaveIndicator" class="hidden items-center gap-1.5 text-[11px] text-slate-400 bg-slate-950/80 border border-slate-800 px-2.5 py-1 rounded-full">
+          <span class="h-2 w-2 rounded-full bg-emerald-400" id="saveDot"></span>
+          <span id="saveText">Salvo no aparelho</span>
+        </div>
+
+        <div id="activeProfileBadge" class="hidden text-xs bg-slate-800/90 border border-slate-700 px-3 py-1.5 rounded-full text-slate-200 font-medium items-center gap-2">
+          <span id="badgeIcon">🏪</span>
+          <span id="badgeText" class="hidden sm:inline">Comércio Local</span>
+          <button type="button" id="btnTrocarPerfil" class="text-emerald-400 hover:text-emerald-300 ml-1 sm:ml-2 font-semibold underline-offset-2 hover:underline">
+            Trocar Perfil
+          </button>
+        </div>
       </div>
     </div>
   </header>
 
-  <!-- ETAPA 1: Landing de Seleção -->
-  <section id="landingStep" class="max-w-6xl mx-auto px-4 py-12 flex-1 flex flex-col justify-center">
+  <!-- ========================================================================
+       PÁGINA 1: PORTAL DE SELEÇÃO DOS 4 PERFIS DE ENTIDADE
+       ======================================================================== -->
+  <section id="landingStep" class="max-w-6xl mx-auto px-4 py-12 flex-1 flex flex-col justify-center w-full">
     <div class="text-center max-w-3xl mx-auto mb-10 space-y-3">
-      <h1 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">Qual é o formato da sua entidade?</h1>
-      <p class="text-slate-400 text-sm sm:text-base">Selecione o modelo do seu negócio para calibrar os atributos semânticos exigidos pelos motores de busca e inteligências artificiais.</p>
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold mb-1">
+        <span>⚡ Motor de Indexação para ChatGPT, Gemini & Perplexity</span>
+      </div>
+      <h1 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+        Qual é o formato da entidade que vamos estruturar?
+      </h1>
+      <p class="text-slate-400 text-sm sm:text-base leading-relaxed">
+        Escolha abaixo o perfil exato do negócio. O formulário passo a passo se adaptará automaticamente com perguntas em linguagem simples e salvamento contínuo.
+      </p>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-4xl mx-auto w-full">
-      <button onclick="selectProfile('local_comercio')" class="group text-left p-6 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-emerald-500/50 hover:bg-slate-900 transition flex flex-col justify-between">
+      <!-- Card 1: Comércio Local -->
+      <button type="button" onclick="window.selectProfile('local_comercio')" class="group text-left p-6 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-emerald-500/60 hover:bg-slate-900/90 transition-all duration-200 flex flex-col justify-between shadow-lg hover:shadow-emerald-950/20">
         <div class="space-y-3">
-          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition">🏪</div>
+          <div class="flex items-center justify-between">
+            <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition">🏪</div>
+            <span id="draftBadge_local_comercio" class="hidden text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">Rascunho salvo</span>
+          </div>
           <h2 class="text-lg font-bold text-white group-hover:text-emerald-400 transition">Comércio & Negócio Local</h2>
-          <p class="text-xs text-slate-400 leading-relaxed">Ponto comercial fixo com atendimento presencial ao público. Restaurantes, oficinas mecânicas, padarias e lojas.</p>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Ponto comercial físico com portas abertas ao público. Oficinas mecânicas, restaurantes, padarias, lojas de varejo, mercados, pet shops, farmácias e academias.
+          </p>
         </div>
-        <div class="pt-4 mt-4 border-t border-slate-800/80 flex items-center justify-between text-xs font-semibold text-emerald-400">
-          <span>Configurar Entidade Local</span><span>→</span>
-        </div>
-      </button>
-
-      <button onclick="selectProfile('prestador_servico')" class="group text-left p-6 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-emerald-500/50 hover:bg-slate-900 transition flex flex-col justify-between">
-        <div class="space-y-3">
-          <div class="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition">🛠️</div>
-          <h2 class="text-lg font-bold text-white group-hover:text-sky-400 transition">Prestador de Serviço / Autônomo</h2>
-          <p class="text-xs text-slate-400 leading-relaxed">Atendimento em domicílio ou por região sem necessidade de ponto aberto. Pintores, eletricistas, encanadores e diaristas.</p>
-        </div>
-        <div class="pt-4 mt-4 border-t border-slate-800/80 flex items-center justify-between text-xs font-semibold text-sky-400">
-          <span>Configurar Prestador</span><span>→</span>
+        <div class="pt-4 mt-5 border-t border-slate-800/80 flex items-center justify-between text-xs font-semibold text-emerald-400">
+          <span>Iniciar Nutrição em 11 Blocos</span>
+          <span class="group-hover:translate-x-1 transition-transform">→</span>
         </div>
       </button>
 
-      <button onclick="selectProfile('profissional_liberal')" class="group text-left p-6 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-emerald-500/50 hover:bg-slate-900 transition flex flex-col justify-between">
+      <!-- Card 2: Prestador de Serviço -->
+      <button type="button" onclick="window.selectProfile('prestador_servico')" class="group text-left p-6 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-sky-500/60 hover:bg-slate-900/90 transition-all duration-200 flex flex-col justify-between shadow-lg hover:shadow-sky-950/20">
         <div class="space-y-3">
-          <div class="w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition">⚖️</div>
+          <div class="flex items-center justify-between">
+            <div class="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition">🛠️</div>
+            <span id="draftBadge_prestador_servico" class="hidden text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-sky-500/15 text-sky-300 border border-sky-500/30">Rascunho salvo</span>
+          </div>
+          <h2 class="text-lg font-bold text-white group-hover:text-sky-400 transition">Prestador de Serviço & Autônomo</h2>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Atendimento móvel no endereço do cliente ou por raio de cobertura regional. Eletricistas, encanadores, pintores, pedreiros, chaveiros 24h, diaristas e construtoras.
+          </p>
+        </div>
+        <div class="pt-4 mt-5 border-t border-slate-800/80 flex items-center justify-between text-xs font-semibold text-sky-400">
+          <span>Iniciar Nutrição em 11 Blocos</span>
+          <span class="group-hover:translate-x-1 transition-transform">→</span>
+        </div>
+      </button>
+
+      <!-- Card 3: Profissional Liberal -->
+      <button type="button" onclick="window.selectProfile('profissional_liberal')" class="group text-left p-6 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-violet-500/60 hover:bg-slate-900/90 transition-all duration-200 flex flex-col justify-between shadow-lg hover:shadow-violet-950/20">
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition">⚖️</div>
+            <span id="draftBadge_profissional_liberal" class="hidden text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-violet-500/15 text-violet-300 border border-violet-500/30">Rascunho salvo</span>
+          </div>
           <h2 class="text-lg font-bold text-white group-hover:text-violet-400 transition">Profissional Liberal Regulamentado</h2>
-          <p class="text-xs text-slate-400 leading-relaxed">Atuação com conselho de classe ou registro formal obrigatório. Médicos, advogados, contadores e dentistas.</p>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Especialistas com registro em Conselho de Classe (atendimento físico, domiciliar ou híbrido). Médicos, advogados, dentistas, psicólogos, engenheiros, contadores e personal trainers.
+          </p>
         </div>
-        <div class="pt-4 mt-4 border-t border-slate-800/80 flex items-center justify-between text-xs font-semibold text-violet-400">
-          <span>Configurar com Credencial</span><span>→</span>
+        <div class="pt-4 mt-5 border-t border-slate-800/80 flex items-center justify-between text-xs font-semibold text-violet-400">
+          <span>Iniciar Nutrição em 11 Blocos</span>
+          <span class="group-hover:translate-x-1 transition-transform">→</span>
         </div>
       </button>
 
-      <button onclick="selectProfile('especialista_digital')" class="group text-left p-6 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-emerald-500/50 hover:bg-slate-900 transition flex flex-col justify-between">
+      <!-- Card 4: Especialista Digital -->
+      <button type="button" onclick="window.selectProfile('especialista_digital')" class="group text-left p-6 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-amber-500/60 hover:bg-slate-900/90 transition-all duration-200 flex flex-col justify-between shadow-lg hover:shadow-amber-950/20">
         <div class="space-y-3">
-          <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition">💡</div>
+          <div class="flex items-center justify-between">
+            <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition">💡</div>
+            <span id="draftBadge_especialista_digital" class="hidden text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30">Rascunho salvo</span>
+          </div>
           <h2 class="text-lg font-bold text-white group-hover:text-amber-400 transition">Especialista Digital & Negócio Online</h2>
-          <p class="text-xs text-slate-400 leading-relaxed">Autoridade remota, infoprodutos, consultorias e lojas online sem endereço físico de atendimento ao público.</p>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Infoprodutores, mentores, consultores online, criadores de conteúdo, produtores de SaaS/Mini-Apps e negócios digitais com vitrines e checkouts sem fronteiras.
+          </p>
         </div>
-        <div class="pt-4 mt-4 border-t border-slate-800/80 flex items-center justify-between text-xs font-semibold text-amber-400">
-          <span>Configurar Autoridade Digital</span><span>→</span>
+        <div class="pt-4 mt-5 border-t border-slate-800/80 flex items-center justify-between text-xs font-semibold text-amber-400">
+          <span>Iniciar Nutrição em 09 Blocos</span>
+          <span class="group-hover:translate-x-1 transition-transform">→</span>
         </div>
       </button>
     </div>
   </section>
 
-  <!-- ETAPA 2: Painel do Motor -->
-  <main id="appStep" class="hidden max-w-7xl mx-auto px-4 py-8 flex-1">
+  <!-- ========================================================================
+       PÁGINA 2: FORMULÁRIO IMERSIVO EM BLOCOS SEQUENCIAIS (WIZARD / STEPPER)
+       ======================================================================== -->
+  <main id="appStep" class="hidden max-w-4xl mx-auto px-4 py-8 flex-1 w-full">
+    <form id="engineForm" novalidate class="space-y-6">
+
+      <!-- 1. ÁREA DE CONTROLE OPERACIONAL DA MENTORIA (TOPO DA PÁGINA) -->
+      <div id="mentorshipControlContainer" class="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 shadow-md">
+        <!-- Renderizado dinamicamente via app.js -->
+      </div>
+
+      <!-- 2. BARRA DE PROGRESSO DO WIZARD & NAVEGAÇÃO DE BLOCOS -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-md space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <span id="stepProgressLabel" class="text-xs font-bold uppercase tracking-wider text-emerald-400">
+              BLOCO 01 DE 11
+            </span>
+            <h2 id="currentStepMainTitle" class="text-base sm:text-lg font-bold text-white mt-0.5">
+              Carregando bloco...
+            </h2>
+          </div>
+          <div class="flex items-center gap-3">
+            <span id="stepPercentageBadge" class="text-xs font-mono font-semibold px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              9% concluído
+            </span>
+            <button type="button" id="btnResetProfileData" class="text-[11px] text-slate-400 hover:text-rose-400 border border-slate-800 hover:border-rose-500/40 px-2.5 py-1 rounded-lg transition" title="Apagar preenchimento atual e começar novo cliente">
+              Limpar / Novo Cliente
+            </button>
+          </div>
+        </div>
+
+        <!-- Barra visual contínua -->
+        <div class="w-full bg-slate-950 h-2.5 rounded-full overflow-hidden border border-slate-800/80">
+          <div id="stepProgressBar" class="bg-gradient-to-r from-emerald-600 to-emerald-400 h-full transition-all duration-300 rounded-full" style="width: 9%"></div>
+        </div>
+
+        <!-- Pílulas numeradas dos blocos (permite saltar rapidamente entre blocos já visitados) -->
+        <div id="stepPillsContainer" class="flex items-center gap-1.5 overflow-x-auto pb-1 pt-1">
+          <!-- Gerado via app.js -->
+        </div>
+      </div>
+
+      <!-- 3. CONTAINER DO BLOCO ATUAL (RENDERIZAÇÃO DINÂMICA DOS CAMPOS) -->
+      <div id="wizardStepContainer" class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl space-y-6">
+        <!-- Campos do bloco ativo são injetados aqui pelo app.js -->
+      </div>
+
+      <!-- CAIXA DE ALERTA DE VALIDAÇÃO (CASO FALTE CAMPO OBRIGATÓRIO NO BLOCO) -->
+      <div id="wizardValidationAlert" class="hidden rounded-xl p-4 bg-rose-950/60 border border-rose-500/40 text-rose-200 text-xs space-y-1">
+        <div class="font-bold text-rose-300 flex items-center gap-2">
+          <span>⚠️ Atenção antes de avançar:</span>
+        </div>
+        <p id="wizardValidationMessage">Preencha os campos obrigatórios marcados com asterisco (*) ou marque a opção Omitir quando disponível.</p>
+      </div>
+
+      <!-- 4. RODAPÉ DE NAVEGAÇÃO DO STEPPER (VOLTAR / AVANÇAR / GERAR CÓDIGO FINAL) -->
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 pb-10">
+        <button type="button" id="btnPrevStep" class="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 font-semibold text-sm transition flex items-center justify-center gap-2">
+          <span>← Bloco Anterior</span>
+        </button>
+
+        <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+          <button type="button" id="btnNextStep" class="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm transition shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2">
+            <span>Salvar & Próximo Bloco →</span>
+          </button>
+
+          <!-- Botão Final (Exibido exclusivamente no último bloco do perfil) -->
+          <button type="submit" id="btnFinalSubmit" class="hidden w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-extrabold text-sm sm:text-base transition shadow-xl shadow-emerald-950/60 flex items-center justify-center gap-2">
+            <span id="btnFinalSubmitText">Gerar & Validar Entidade para IA →</span>
+          </button>
+        </div>
+      </div>
+
+    </form>
+  </main>
+
+  <!-- ========================================================================
+       PÁGINA 3: DIAGNÓSTICO DE AUTORIDADE, SCRIPT JSON-LD & AVANÇO APP 1B
+       ======================================================================== -->
+  <section id="resultStep" class="hidden max-w-6xl mx-auto px-4 py-10 flex-1 w-full space-y-8">
+    
+    <!-- Cabeçalho de Sucesso e Auditoria -->
+    <div class="bg-slate-900/90 border border-emerald-500/30 rounded-2xl p-6 sm:p-8 shadow-xl">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div class="space-y-2">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold">
+            <span>✅ Entidade Compilada & Higienizada com Sucesso</span>
+          </div>
+          <h2 id="resultEntityTitle" class="text-2xl sm:text-3xl font-extrabold text-white">
+            Diagnóstico Semântico da Entidade
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-400 max-w-2xl leading-relaxed">
+            O robô aplicou a regra <strong class="text-slate-200">Omitir = 0</strong>: todas as chaves não aplicáveis foram eliminadas para gerar um código 100% enxuto, sem campos vazios e pronto para indexação nos motores de IA.
+          </p>
+        </div>
+
+        <!-- Placar de Densidade Semântica -->
+        <div class="flex items-center gap-4 bg-slate-950/90 border border-slate-800 px-5 py-4 rounded-2xl shrink-0">
+          <div class="text-center">
+            <span class="block text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Força Semântica</span>
+            <span id="authorityScoreValue" class="text-3xl font-extrabold text-emerald-400">98%</span>
+          </div>
+          <div class="h-10 w-px bg-slate-800"></div>
+          <div class="text-xs text-slate-300 space-y-1">
+            <div>Atributos Ativos: <strong id="activePropsCount" class="text-white">0</strong></div>
+            <div>Campos Omitidos Limpos: <strong id="omittedPropsCount" class="text-slate-400">0</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status do Disparo para Automação Make -->
+      <div id="webhookStatusBanner" class="mt-5 rounded-xl p-3.5 text-xs border flex items-center justify-between gap-3 bg-slate-950/80 border-slate-800 text-slate-300">
+        <span id="webhookStatusText">Sincronizando pacote completo com a automação...</span>
+        <button type="button" id="btnRetryWebhook" class="hidden text-emerald-400 hover:text-emerald-300 font-semibold underline">Reenviar</button>
+      </div>
+    </div>
+
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-      
-      <section class="lg:col-span-7 space-y-6">
-        <form id="engineForm" class="space-y-6">
-          <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-5 shadow-sm space-y-4">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-400">01. Identificação da Entidade</h3>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs font-medium text-slate-300 mb-1">Mentor / Lead Ref *</label>
-                <input type="text" id="mentorRef" required placeholder="ex: roni-aluno ou lead@email.com" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
-              </div>
-              <div>
-                <label class="block text-xs font-medium text-slate-300 mb-1">Tipo Primário Schema.org *</label>
-                <select id="schemaType" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500"></select>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs font-medium text-slate-300 mb-1" id="labelName">Nome Fantasia / Entidade *</label>
-                <input type="text" id="name" required placeholder="ex: Oficina Mecânica Santos" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
-              </div>
-              <div>
-                <label class="block text-xs font-medium text-slate-300 mb-1">Telefone / WhatsApp Comercial *</label>
-                <input type="tel" id="telephone" required placeholder="+55 16 99999-9999" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs font-medium text-slate-300 mb-1">Site Oficial / Página (URL)</label>
-                <input type="url" id="url" placeholder="https://exemplo.com.br" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
-              </div>
-              <div>
-                <label class="block text-xs font-medium text-slate-300 mb-1" id="labelEspecialidade">Especialidade Principal *</label>
-                <input type="text" id="specialty" placeholder="ex: Motores a Diesel, Direito Tributário, Pintura Epóxi" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
-              </div>
-            </div>
-
-            <div id="fieldCouncilContainer" class="hidden">
-              <label class="block text-xs font-medium text-violet-300 mb-1">Conselho Profissional & Registro *</label>
-              <input type="text" id="councilReg" placeholder="ex: CRM/SP 123456 | OAB/SP 987654 | CREF 012345-G/SP" class="w-full bg-slate-950 border border-violet-900/60 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-violet-500">
-            </div>
-
-            <div id="fieldFoundingContainer" class="hidden">
-              <label class="block text-xs font-medium text-slate-300 mb-1">Ano de Abertura / Em atividade desde</label>
-              <input type="text" id="foundingDate" placeholder="ex: 2012" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
-            </div>
-
+      <!-- Coluna Esquerda: Código JSON-LD Pronto para Copiar -->
+      <div class="lg:col-span-7 space-y-4">
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-lg space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-800">
             <div>
-              <label class="block text-xs font-medium text-slate-300 mb-1">Descrição Otimizada para GEO</label>
-              <textarea id="description" rows="2" placeholder="Descreva os serviços prestados, termos-chave de busca e diferenciais." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500"></textarea>
+              <h3 class="text-sm font-bold uppercase tracking-wider text-emerald-400">
+                Script Semântico Oficial (JSON-LD)
+              </h3>
+              <p class="text-xs text-slate-400 mt-0.5">
+                Pronto para colar dentro da seção <code class="text-slate-200">&lt;head&gt;</code> do site do cliente.
+              </p>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button type="button" id="btnCopyCode" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-md flex items-center gap-1.5">
+                <span>📋 Copiar Código em 1 Clique</span>
+              </button>
+              <button type="button" id="btnDownloadJson" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold px-3 py-2.5 rounded-xl transition">
+                <span>⬇️ Baixar</span>
+              </button>
             </div>
           </div>
 
-          <div id="locationCard" class="bg-slate-900/90 border border-slate-800 rounded-xl p-5 shadow-sm space-y-4">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-400" id="locationTitle">02. Endereço Físico & Localização</h3>
-
-            <div id="physicalAddressFields" class="space-y-4">
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <label class="block text-xs font-medium text-slate-300 mb-1">CEP</label>
-                  <input type="text" id="postalCode" placeholder="15990-000" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
-                </div>
-                <div class="sm:col-span-2">
-                  <label class="block text-xs font-medium text-slate-300 mb-1">Rua e Número</label>
-                  <input type="text" id="streetAddress" placeholder="Av. Sete de Setembro, 450" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
-                </div>
-              </div>
-
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <label class="block text-xs font-medium text-slate-300 mb-1">Bairro</label>
-                  <input type="text" id="addressLocality" placeholder="Centro" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
-                </div>
-                <div>
-                  <label class="block text-xs font-medium text-slate-300 mb-1">Cidade *</label>
-                  <input type="text" id="addressCity" required placeholder="Matão" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
-                </div>
-                <div>
-                  <label class="block text-xs font-medium text-slate-300 mb-1">UF *</label>
-                  <input type="text" id="addressRegion" required maxlength="2" placeholder="SP" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 uppercase focus:outline-none focus:border-emerald-500">
-                </div>
-              </div>
-            </div>
-
-            <div id="serviceAreaField" class="hidden">
-              <label class="block text-xs font-medium text-slate-300 mb-1">Cidades ou Regiões Atendidas (areaServed)</label>
-              <input type="text" id="areaServed" placeholder="ex: Matão, Araraquara, São Carlos e Região" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
-            </div>
+          <div class="bg-slate-950 border border-slate-800/90 rounded-xl p-4 overflow-hidden">
+            <pre id="jsonFinalOutput" class="text-xs text-emerald-400 overflow-x-auto max-h-[540px] leading-relaxed font-mono select-all"></pre>
           </div>
 
-          <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-5 shadow-sm space-y-4">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-400">03. Ecossistema Conectado (sameAs)</h3>
-
-            <div class="space-y-3">
-              <div id="fieldGoogleContainer">
-                <label class="block text-xs font-medium text-slate-300 mb-1">Link do Google Maps / Google Perfil de Empresa</label>
-                <input type="url" id="linkGoogle" placeholder="https://maps.google.com/?cid=..." class="sameas-input w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
-              </div>
-
-              <div id="fieldFoodDeliveryContainer" class="hidden">
-                <label class="block text-xs font-medium text-slate-300 mb-1">iFood / Plataforma Delivery</label>
-                <input type="url" id="linkIfood" placeholder="https://www.ifood.com.br/delivery/..." class="sameas-input w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
-              </div>
-
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-xs font-medium text-slate-300 mb-1">Instagram</label>
-                  <input type="url" id="linkInstagram" placeholder="https://instagram.com/usuario" class="sameas-input w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
-                </div>
-                <div>
-                  <label class="block text-xs font-medium text-slate-300 mb-1">LinkedIn / Portfólio</label>
-                  <input type="url" id="linkLinkedin" placeholder="https://linkedin.com/in/usuario" class="sameas-input w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
-                </div>
-              </div>
-
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-xs font-medium text-slate-300 mb-1">YouTube</label>
-                  <input type="url" id="linkYoutube" placeholder="https://youtube.com/@canal" class="sameas-input w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
-                </div>
-                <div>
-                  <label class="block text-xs font-medium text-slate-300 mb-1">Facebook</label>
-                  <input type="url" id="linkFacebook" placeholder="https://facebook.com/pagina" class="sameas-input w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
-                </div>
-              </div>
-            </div>
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+            <a href="https://search.google.com/test/rich-results" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto text-center text-xs font-semibold text-slate-300 hover:text-emerald-400 bg-slate-950 hover:bg-slate-900 border border-slate-800 hover:border-emerald-500/40 px-4 py-2.5 rounded-xl transition">
+              🔍 Validar Código no Google Rich Results Test ↗
+            </a>
+            <a href="https://validator.schema.org/" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto text-center text-xs font-semibold text-slate-300 hover:text-emerald-400 bg-slate-950 hover:bg-slate-900 border border-slate-800 hover:border-emerald-500/40 px-4 py-2.5 rounded-xl transition">
+              🛡️ Validar no Schema.org Oficial ↗
+            </a>
           </div>
+        </div>
+      </div>
 
-          <div class="flex flex-col sm:flex-row gap-3 pt-2">
-            <button type="button" id="btnPreview" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-100 font-semibold py-3 px-4 rounded-xl border border-slate-700 transition">
-              <span>Recalcular Schema</span>
-            </button>
-            <button type="submit" id="btnSubmit" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 px-4 rounded-xl transition shadow-lg shadow-emerald-950/40">
-              <span>Gerar & Enviar para Automação</span>
-            </button>
+      <!-- Coluna Direita: Resumo do Avatar, Auditoria & Avanço App 1B -->
+      <div class="lg:col-span-5 space-y-6">
+        
+        <!-- Card de Transição para o Construtor de Site (App 1B) -->
+        <div class="bg-gradient-to-br from-emerald-950/60 via-slate-900 to-slate-900 border border-emerald-500/40 rounded-2xl p-6 shadow-lg space-y-4">
+          <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-300 text-[11px] font-bold uppercase">
+            <span>Próxima Etapa do Ecossistema</span>
           </div>
-        </form>
-      </section>
-
-      <section class="lg:col-span-5 space-y-6">
-        <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-5 shadow-sm space-y-4 lg:sticky lg:top-24">
-          <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-            <div>
-              <h3 class="text-sm font-semibold uppercase tracking-wider text-slate-200">Script Semântico Pronto</h3>
-              <p class="text-xs text-slate-400">Tag &lt;script type="application/ld+json"&gt;</p>
-            </div>
-            <button id="btnCopy" class="text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-medium px-3 py-1.5 rounded-lg transition">
-              Copiar Tag
-            </button>
-          </div>
-
-          <div class="bg-slate-950 border border-slate-800 rounded-lg p-3 overflow-hidden">
-            <pre id="jsonPreview" class="text-xs text-emerald-400 overflow-x-auto max-h-[500px] p-2 leading-relaxed font-mono">Preencha os campos para compilar o código.</pre>
-          </div>
-
-          <div id="statusBox" class="hidden text-xs rounded-lg p-3.5 border transition"></div>
-
-          <a href="https://search.google.com/test/rich-results" target="_blank" rel="noopener noreferrer" class="text-center text-xs font-medium text-slate-400 hover:text-emerald-400 border border-slate-800 hover:border-slate-700 py-2.5 rounded-lg transition block">
-            Testar no Rich Results Test (Google) ↗
+          <h3 class="text-lg font-extrabold text-white">
+            Pronto para Construir o Site Otimizado (App 1B)?
+          </h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Todos os dados técnicos, diferenciais e o <strong>Módulo Psicológico do Avatar</strong> já estão salvos e estruturados na memória para alimentar a criação da página de alta conversão.
+          </p>
+          <a id="btnGoToApp1B" href="#construtor-de-site" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-sm py-3.5 px-5 rounded-xl transition flex items-center justify-center gap-2 shadow-lg">
+            <span>Avançar para o Construtor de Site (App 1B) →</span>
           </a>
         </div>
-      </section>
 
+        <!-- Resumo de Auditoria & Avatar Mapeado -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 space-y-4">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300">
+            Raio-X dos Dados Estruturados & Avatar
+          </h3>
+          <div id="auditSummaryList" class="space-y-3 text-xs text-slate-300">
+            <!-- Preenchido via app.js -->
+          </div>
+
+          <div class="pt-4 border-t border-slate-800 flex flex-col sm:flex-row gap-3">
+            <button type="button" id="btnBackToEdit" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold py-2.5 px-4 rounded-xl text-xs transition">
+              ← Voltar e Editar Dados
+            </button>
+            <button type="button" id="btnStartNewEntity" class="flex-1 bg-slate-950 hover:bg-slate-900 text-slate-400 hover:text-white border border-slate-800 font-semibold py-2.5 px-4 rounded-xl text-xs transition">
+              + Cadastrar Outro Cliente
+            </button>
+          </div>
+        </div>
+
+      </div>
     </div>
-  </main>
+  </section>
 
   <script type="module" src="./js/app.js"></script>
 </body>

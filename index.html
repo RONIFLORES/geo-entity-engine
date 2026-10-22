@@ -40,7 +40,7 @@
         <div id="activeProfileBadge" class="hidden text-xs bg-slate-800/90 border border-slate-700 px-3 py-1.5 rounded-full text-slate-200 font-medium items-center gap-2">
           <span id="badgeIcon">🏪</span>
           <span id="badgeText" class="hidden sm:inline">Comércio Local</span>
-          <button type="button" id="btnTrocarPerfil" class="text-emerald-400 hover:text-emerald-300 ml-1 sm:ml-2 font-semibold underline-offset-2 hover:underline">
+          <button type="button" id="btnTrocarPerfil" class="text-emerald-400 hover:text-emerald-300 ml-1 sm:ml-2 font-semibold underline-offset-2 hover:underline cursor-pointer">
             Trocar Perfil
           </button>
         </div>
@@ -66,7 +66,7 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-4xl mx-auto w-full">
       <!-- Card 1: Comércio Local -->
-      <button type="button" onclick="window.selectProfile('local_comercio')" class="group text-left p-6 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-emerald-500/60 hover:bg-slate-900/90 transition-all duration-200 flex flex-col justify-between shadow-lg hover:shadow-emerald-950/20">
+      <button type="button" onclick="window.selectProfile('local_comercio')" class="group text-left p-6 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-emerald-500/60 hover:bg-slate-900/90 transition-all duration-200 flex flex-col justify-between shadow-lg hover:shadow-emerald-950/20 cursor-pointer">
         <div class="space-y-3">
           <div class="flex items-center justify-between">
             <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition">🏪</div>
@@ -84,7 +84,7 @@
       </button>
 
       <!-- Card 2: Prestador de Serviço -->
-      <button type="button" onclick="window.selectProfile('prestador_servico')" class="group text-left p-6 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-sky-500/60 hover:bg-slate-900/90 transition-all duration-200 flex flex-col justify-between shadow-lg hover:shadow-sky-950/20">
+      <button type="button" onclick="window.selectProfile('prestador_servico')" class="group text-left p-6 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-sky-500/60 hover:bg-slate-900/90 transition-all duration-200 flex flex-col justify-between shadow-lg hover:shadow-sky-950/20 cursor-pointer">
         <div class="space-y-3">
           <div class="flex items-center justify-between">
             <div class="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition">🛠️</div>
@@ -102,7 +102,7 @@
       </button>
 
       <!-- Card 3: Profissional Liberal -->
-      <button type="button" onclick="window.selectProfile('profissional_liberal')" class="group text-left p-6 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-violet-500/60 hover:bg-slate-900/90 transition-all duration-200 flex flex-col justify-between shadow-lg hover:shadow-violet-950/20">
+      <button type="button" onclick="window.selectProfile('profissional_liberal')" class="group text-left p-6 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-violet-500/60 hover:bg-slate-900/90 transition-all duration-200 flex flex-col justify-between shadow-lg hover:shadow-violet-950/20 cursor-pointer">
         <div class="space-y-3">
           <div class="flex items-center justify-between">
             <div class="w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition">⚖️</div>
@@ -120,7 +120,7 @@
       </button>
 
       <!-- Card 4: Especialista Digital -->
-      <button type="button" onclick="window.selectProfile('especialista_digital')" class="group text-left p-6 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-amber-500/60 hover:bg-slate-900/90 transition-all duration-200 flex flex-col justify-between shadow-lg hover:shadow-amber-950/20">
+      <button type="button" onclick="window.selectProfile('especialista_digital')" class="group text-left p-6 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-amber-500/60 hover:bg-slate-900/90 transition-all duration-200 flex flex-col justify-between shadow-lg hover:shadow-amber-950/20 cursor-pointer">
         <div class="space-y-3">
           <div class="flex items-center justify-between">
             <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition">💡</div>
@@ -165,7 +165,7 @@
             <span id="stepPercentageBadge" class="text-xs font-mono font-semibold px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
               9% concluído
             </span>
-            <button type="button" id="btnResetProfileData" class="text-[11px] text-slate-400 hover:text-rose-400 border border-slate-800 hover:border-rose-500/40 px-2.5 py-1 rounded-lg transition" title="Apagar preenchimento atual e começar novo cliente">
+            <button type="button" id="btnResetProfileData" class="text-[11px] text-slate-400 hover:text-rose-400 border border-slate-800 hover:border-rose-500/40 px-2.5 py-1 rounded-lg transition cursor-pointer" title="Apagar preenchimento atual e começar novo cliente">
               Limpar / Novo Cliente
             </button>
           </div>
@@ -176,7 +176,7 @@
           <div id="stepProgressBar" class="bg-gradient-to-r from-emerald-600 to-emerald-400 h-full transition-all duration-300 rounded-full" style="width: 9%"></div>
         </div>
 
-        <!-- Pílulas numeradas dos blocos (permite saltar rapidamente entre blocos já visitados) -->
+        <!-- Pílulas numeradas dos blocos -->
         <div id="stepPillsContainer" class="flex items-center gap-1.5 overflow-x-auto pb-1 pt-1">
           <!-- Gerado via app.js -->
         </div>
@@ -187,7 +187,7 @@
         <!-- Campos do bloco ativo são injetados aqui pelo app.js -->
       </div>
 
-      <!-- CAIXA DE ALERTA DE VALIDAÇÃO (CASO FALTE CAMPO OBRIGATÓRIO NO BLOCO) -->
+      <!-- CAIXA DE ALERTA DE VALIDAÇÃO -->
       <div id="wizardValidationAlert" class="hidden rounded-xl p-4 bg-rose-950/60 border border-rose-500/40 text-rose-200 text-xs space-y-1">
         <div class="font-bold text-rose-300 flex items-center gap-2">
           <span>⚠️ Atenção antes de avançar:</span>
@@ -195,20 +195,20 @@
         <p id="wizardValidationMessage">Preencha os campos obrigatórios marcados com asterisco (*) ou marque a opção Omitir quando disponível.</p>
       </div>
 
-      <!-- 4. RODAPÉ DE NAVEGAÇÃO DO STEPPER (VOLTAR / AVANÇAR / GERAR CÓDIGO FINAL) -->
+      <!-- 4. RODAPÉ DE NAVEGAÇÃO DO STEPPER -->
       <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 pb-10">
-        <button type="button" id="btnPrevStep" class="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 font-semibold text-sm transition flex items-center justify-center gap-2">
+        <button type="button" id="btnPrevStep" class="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 font-semibold text-sm transition flex items-center justify-center gap-2 cursor-pointer">
           <span>← Bloco Anterior</span>
         </button>
 
         <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-          <button type="button" id="btnNextStep" class="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm transition shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2">
+          <button type="button" id="btnNextStep" class="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm transition shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2 cursor-pointer">
             <span>Salvar & Próximo Bloco →</span>
           </button>
 
-          <!-- Botão Final (Exibido exclusivamente no último bloco do perfil) -->
-          <button type="submit" id="btnFinalSubmit" class="hidden w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-extrabold text-sm sm:text-base transition shadow-xl shadow-emerald-950/60 flex items-center justify-center gap-2">
-            <span id="btnFinalSubmitText">Gerar & Validar Entidade para IA →</span>
+          <!-- Botão Final (Exibido no último bloco para abrir a Revisão Panorâmica 2.5) -->
+          <button type="submit" id="btnFinalSubmit" class="hidden w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-extrabold text-sm sm:text-base transition shadow-xl shadow-emerald-950/60 flex items-center justify-center gap-2 cursor-pointer">
+            <span id="btnFinalSubmitText">Revisar Dados & Auditar com IA →</span>
           </button>
         </div>
       </div>
@@ -217,7 +217,7 @@
   </main>
 
   <!-- ========================================================================
-       PÁGINA 3: DIAGNÓSTICO DE AUTORIDADE, SCRIPT JSON-LD & AVANÇO APP 1B
+       PÁGINA 3: DIAGNÓSTICO, SCRIPT JSON-LD, CHAT AUDITOR & AVANÇO APP/ROBÔ QG
        ======================================================================== -->
   <section id="resultStep" class="hidden max-w-6xl mx-auto px-4 py-10 flex-1 w-full space-y-8">
     
@@ -240,7 +240,7 @@
         <div class="flex items-center gap-4 bg-slate-950/90 border border-slate-800 px-5 py-4 rounded-2xl shrink-0">
           <div class="text-center">
             <span class="block text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Força Semântica</span>
-            <span id="authorityScoreValue" class="text-3xl font-extrabold text-emerald-400">98%</span>
+            <span id="authorityScoreValue" class="text-3xl font-extrabold text-emerald-400">100%</span>
           </div>
           <div class="h-10 w-px bg-slate-800"></div>
           <div class="text-xs text-slate-300 space-y-1">
@@ -252,14 +252,17 @@
 
       <!-- Status do Disparo para Automação Make -->
       <div id="webhookStatusBanner" class="mt-5 rounded-xl p-3.5 text-xs border flex items-center justify-between gap-3 bg-slate-950/80 border-slate-800 text-slate-300">
-        <span id="webhookStatusText">Sincronizando pacote completo com a automação...</span>
-        <button type="button" id="btnRetryWebhook" class="hidden text-emerald-400 hover:text-emerald-300 font-semibold underline">Reenviar</button>
+        <span id="webhookStatusText">Transmitindo entidade higienizada para auditoria e enriquecimento...</span>
+        <button type="button" id="btnRetryWebhook" class="hidden text-emerald-400 hover:text-emerald-300 font-semibold underline cursor-pointer">Reenviar</button>
       </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-      <!-- Coluna Esquerda: Código JSON-LD Pronto para Copiar -->
-      <div class="lg:col-span-7 space-y-4">
+      
+      <!-- Coluna Esquerda: Código JSON-LD & Chat Especialista Auditor -->
+      <div class="lg:col-span-7 space-y-6">
+        
+        <!-- Bloco do Script Semântico -->
         <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-lg space-y-4">
           <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-800">
             <div>
@@ -272,19 +275,20 @@
             </div>
 
             <div class="flex items-center gap-2">
-              <button type="button" id="btnCopyCode" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-md flex items-center gap-1.5">
+              <button type="button" id="btnCopyCode" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-md flex items-center gap-1.5 cursor-pointer">
                 <span>📋 Copiar Código em 1 Clique</span>
               </button>
-              <button type="button" id="btnDownloadJson" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold px-3 py-2.5 rounded-xl transition">
+              <button type="button" id="btnDownloadJson" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold px-3 py-2.5 rounded-xl transition cursor-pointer">
                 <span>⬇️ Baixar</span>
               </button>
             </div>
           </div>
 
           <div class="bg-slate-950 border border-slate-800/90 rounded-xl p-4 overflow-hidden">
-            <pre id="jsonFinalOutput" class="text-xs text-emerald-400 overflow-x-auto max-h-[540px] leading-relaxed font-mono select-all"></pre>
+            <pre id="jsonFinalOutput" class="text-xs text-emerald-400 overflow-x-auto max-h-[460px] leading-relaxed font-mono select-all"></pre>
           </div>
 
+          <!-- Links de Validação Oficial Externa -->
           <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
             <a href="https://search.google.com/test/rich-results" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto text-center text-xs font-semibold text-slate-300 hover:text-emerald-400 bg-slate-950 hover:bg-slate-900 border border-slate-800 hover:border-emerald-500/40 px-4 py-2.5 rounded-xl transition">
               🔍 Validar Código no Google Rich Results Test ↗
@@ -294,24 +298,67 @@
             </a>
           </div>
         </div>
+
+        <!-- CONTAINER DE CHAT COM O AGENTE AUDITOR SEMÂNTICO -->
+        <div id="agentChatSection" class="bg-slate-900/90 border border-emerald-500/30 rounded-2xl p-5 sm:p-6 shadow-xl space-y-4">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+            <div class="flex items-center gap-2.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <h3 class="text-sm font-bold text-white tracking-wide">Agente Auditor Semântico • Modo Especialista</h3>
+            </div>
+            <span class="text-[10px] font-mono font-medium px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              Schema & Google Rich Results
+            </span>
+          </div>
+
+          <!-- Janela com histórico de mensagens do Agente e do Mentorado -->
+          <div id="agentChatLogs" class="h-56 overflow-y-auto space-y-3 p-3.5 bg-slate-950 rounded-xl border border-slate-800/80 text-xs leading-relaxed font-sans">
+            <!-- Mensagens são injetadas dinamicamente via app.js -->
+          </div>
+
+          <!-- Botoes de Decisao Rapida Fechada -->
+          <div id="agentQuickActions" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+            <button type="button" id="btnAgentConfirmOk" class="py-2.5 px-3.5 rounded-xl bg-emerald-600/90 hover:bg-emerald-500 text-white font-bold text-xs transition border border-emerald-400/40 shadow flex items-center justify-center gap-1.5 cursor-pointer">
+              <span>✅ Tudo Certo / Prosseguir para App/Robô QG</span>
+            </button>
+            <button type="button" id="btnAgentReportError" class="py-2.5 px-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 font-semibold text-xs transition border border-amber-500/30 flex items-center justify-center gap-1.5 cursor-pointer">
+              <span>⚠️ Deu erro no teste: Colar resposta</span>
+            </button>
+          </div>
+
+          <!-- Caixa de Entrada para Erros / Respostas Restritas -->
+          <div class="flex items-center gap-2 pt-1">
+            <input type="text" id="agentInputMessage" placeholder="Cole a mensagem de erro do Google ou digite a resposta solicitada..." class="flex-1 bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-4 py-2.5 text-xs text-slate-100 placeholder-slate-600 focus:outline-none transition" />
+            <button type="button" id="btnAgentSend" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl transition cursor-pointer shadow-md">
+              Enviar
+            </button>
+          </div>
+        </div>
+
       </div>
 
-      <!-- Coluna Direita: Resumo do Avatar, Auditoria & Avanço App 1B -->
+      <!-- Coluna Direita: Resumo do Avatar, Auditoria & Avanço App/Robô QG -->
       <div class="lg:col-span-5 space-y-6">
         
-        <!-- Card de Transição para o Construtor de Site (App 1B) -->
+        <!-- Card de Transição para o App/Robô QG (com trava inicial de segurança) -->
         <div class="bg-gradient-to-br from-emerald-950/60 via-slate-900 to-slate-900 border border-emerald-500/40 rounded-2xl p-6 shadow-lg space-y-4">
           <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-300 text-[11px] font-bold uppercase">
             <span>Próxima Etapa do Ecossistema</span>
           </div>
           <h3 class="text-lg font-extrabold text-white">
-            Pronto para Construir o Site Otimizado (App 1B)?
+            Pronto para Construir o Site Otimizado (App/Robô QG)?
           </h3>
           <p class="text-xs text-slate-300 leading-relaxed">
-            Todos os dados técnicos, diferenciais e o <strong>Módulo Psicológico do Avatar</strong> já estão salvos e estruturados na memória para alimentar a criação da página de alta conversão.
+            Todos os dados cadastrais, diferenciais e o <strong>Módulo Psicológico do Avatar</strong> estão higienizados para ingestão direta pelo gerador de páginas.
           </p>
-          <a id="btnGoToApp1B" href="#construtor-de-site" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-sm py-3.5 px-5 rounded-xl transition flex items-center justify-center gap-2 shadow-lg">
-            <span>Avançar para o Construtor de Site (App 1B) →</span>
+
+          <div id="qgGatekeeperNotice" class="p-3 bg-slate-950/70 border border-amber-500/30 rounded-xl text-[11px] text-amber-300 flex items-center gap-2">
+            <span>🔒 Confirme a validação com o Agente no chat ao lado para destravar o avanço.</span>
+          </div>
+
+          <!-- Botão de Avanço: Inicia desabilitado e é destravado pelo Agente Auditor -->
+          <a id="btnGoToApp1B" href="#app-robo-qg" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-sm py-3.5 px-5 rounded-xl transition flex items-center justify-center gap-2 shadow-lg opacity-50 cursor-not-allowed pointer-events-none">
+            <span>Avançar para o App/Robô QG →</span>
           </a>
         </div>
 
@@ -325,10 +372,10 @@
           </div>
 
           <div class="pt-4 border-t border-slate-800 flex flex-col sm:flex-row gap-3">
-            <button type="button" id="btnBackToEdit" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold py-2.5 px-4 rounded-xl text-xs transition">
+            <button type="button" id="btnBackToEdit" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold py-2.5 px-4 rounded-xl text-xs transition cursor-pointer">
               ← Voltar e Editar Dados
             </button>
-            <button type="button" id="btnStartNewEntity" class="flex-1 bg-slate-950 hover:bg-slate-900 text-slate-400 hover:text-white border border-slate-800 font-semibold py-2.5 px-4 rounded-xl text-xs transition">
+            <button type="button" id="btnStartNewEntity" class="flex-1 bg-slate-950 hover:bg-slate-900 text-slate-400 hover:text-white border border-slate-800 font-semibold py-2.5 px-4 rounded-xl text-xs transition cursor-pointer">
               + Cadastrar Outro Cliente
             </button>
           </div>

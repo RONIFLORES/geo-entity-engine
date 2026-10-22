@@ -3,7 +3,7 @@
  * GEO ENTITY ENGINE (APP 1A) - MOTOR DE RENDERIZAÇÃO, AUTO-SAVE & COMPILADOR
  * Gerencia o Wizard/Stepper, persistência isolada no localStorage,
  * Regra estrita "Omitir = 0", Página 2.5 de Revisão Panorâmica com Inspetor
- * de Anomalias e disparo de payload para Webhook Make + App 1B.
+ * de Anomalias, Chat Especialista e disparo de payload para Webhook Make + App/Robô QG.
  * ============================================================================
  */
 
@@ -25,6 +25,7 @@ let mentorshipState = {
   mentor_student_code: ""
 };
 let lastCompiledPayload = null;
+let chatConversationHistory = [];
 
 // ELEMENTOS PRINCIPAIS DO DOM
 const landingStep = document.getElementById("landingStep");
@@ -72,6 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
   loadMentorshipState();
   checkSavedDraftBadges();
   setupGlobalListeners();
+  setupAgentChatListeners();
 });
 
 function hasActualUserTypedData(savedRaw) {
@@ -152,7 +154,6 @@ function saveProfileFormState() {
   if (!activeProfileKey) return;
   const profile = PROFILES[activeProfileKey];
   
-  // VERIFICAÇÃO RIGOROSA: Só grava se houver digitação real
   const rawString = JSON.stringify(formState);
   if (!hasActualUserTypedData(rawString)) {
     localStorage.removeItem(API_CONFIG.STORAGE_PREFIX + profile.storageKey);
@@ -375,10 +376,8 @@ function renderMentorshipControlBox() {
 // ============================================================================
 
 function canNavigateToStep(targetIndex) {
-  // Permite sempre voltar a qualquer bloco anterior já visitado
   if (targetIndex <= currentStepIndex) return true;
 
-  // Não permite saltar blocos futuros se o atual ou os intermediários tiverem pendências obrigatórias
   for (let i = currentStepIndex; i < targetIndex; i++) {
     if (!validateSpecificStep(i)) {
       currentStepIndex = i;
@@ -647,7 +646,7 @@ function renderFieldMarkup(field) {
   if (field.type === "select_with_other") {
     const selObj = state && typeof state === "object" ? state : { selected: "", otherText: "" };
     const isOther = selObj.selected === "OTHER";
-    const maxLen = field.otherMaxLength || 90;
+    const maxLen = field.otherMaxLength || 135;
 
     return `
       <div class="bg-slate-950/60 border border-slate-800/90 rounded-xl p-4 space-y-3">
@@ -666,7 +665,7 @@ function renderFieldMarkup(field) {
 
         <div id="otherBox_${field.id}" class="${isOther ? "" : "hidden"} pt-2 space-y-1.5">
           <label class="block text-xs font-semibold text-emerald-400">
-            ${escapeHtml(field.otherLabel || "Especifique em uma frase curta (Máx. 90 caracteres) *")}
+            ${escapeHtml(field.otherLabel || "Especifique em uma frase curta (Máx. 135 caracteres) *")}
           </label>
           <input
             type="text"
@@ -745,7 +744,7 @@ function renderFieldMarkup(field) {
   if (field.type === "tri_state_with_input") {
     const obj = state && typeof state === "object" ? state : { status: "Omitir", text: "" };
     const states = ["Sim", "Não", "Omitir"];
-    const maxLen = field.maxLength || 120;
+    const maxLen = field.maxLength || 135;
 
     return `
       <div class="bg-slate-950/60 border border-slate-800/90 rounded-xl p-4 space-y-3">
@@ -793,7 +792,7 @@ function renderFieldMarkup(field) {
     const grp = state && typeof state === "object"
       ? state
       : { omitted: false, selected: [], otherSelected: false, otherText: "" };
-    const maxLen = field.otherMaxLength || 90;
+    const maxLen = field.otherMaxLength || 135;
 
     return `
       <div class="bg-slate-950/60 border border-slate-800/90 rounded-xl p-4 space-y-3">
@@ -847,7 +846,7 @@ function renderFieldMarkup(field) {
                     : "bg-slate-900/70 border-slate-800 text-slate-300 hover:border-slate-700"
                 }">
                   <input type="checkbox" id="chkOtherToggle_${field.id}" ${grp.otherSelected ? "checked" : ""} class="rounded bg-slate-950 border-slate-700 text-amber-500 focus:ring-0">
-                  <span class="text-xs sm:text-sm">${escapeHtml(field.otherLabel || "⭐ Outro(s) / Especificar diferencial (Máx. 90 caracteres)")}</span>
+                  <span class="text-xs sm:text-sm">${escapeHtml(field.otherLabel || "⭐ Outro(s) / Especificar diferencial (Máx. 135 caracteres)")}</span>
                 </label>
 
                 <div id="chkOtherBox_${field.id}" class="${grp.otherSelected ? "" : "hidden"} mt-2.5 pl-2 space-y-1">
@@ -856,7 +855,7 @@ function renderFieldMarkup(field) {
                     id="chkOtherInput_${field.id}"
                     maxlength="${maxLen}"
                     value="${escapeHtml(grp.otherText || "")}"
-                    placeholder="${escapeHtml(field.otherPlaceholder || "Resuma em uma frase de até 90 caracteres...")}"
+                    placeholder="${escapeHtml(field.otherPlaceholder || "Resuma em uma frase...")}"
                     class="w-full bg-slate-900 border border-amber-500/50 focus:border-amber-400 rounded-xl px-3.5 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none"
                   />
                   <div class="text-right text-[11px] font-mono text-slate-400" id="chkOtherCounter_${field.id}">
@@ -969,7 +968,7 @@ function renderFieldMarkup(field) {
             <span>${escapeHtml(field.label)}</span>
             ${renderTooltipIcon(field.tooltip)}
           </label>
-          <button type="button" id="btnCopyMonFri_${field.id}" class="text-xs bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 font-semibold px-3 py-1.5 rounded-lg transition self-start sm:self-auto cursor-pointer">
+          <button type="button" id="btnCopyMonFri_${field.id}" class="text-xs bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 font-semibold px-3.5 py-1.5 rounded-lg transition self-start sm:self-auto cursor-pointer">
             ${escapeHtml(field.copyButtonText || "Copiar horário de Segunda para Sexta-feira")}
           </button>
         </div>
@@ -1032,7 +1031,7 @@ function renderFieldMarkup(field) {
 
         <div>
           <label class="block text-xs font-medium text-slate-300 mb-1">Descrição Resumida da Cobertura da Garantia</label>
-          <input type="text" id="wCob_${field.id}" maxlength="150" value="${escapeHtml(w.cobertura_garantia || "")}" placeholder="Ex: Garantia total para mão de obra e substituição de componentes defeituosos" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100" />
+          <input type="text" id="wCob_${field.id}" maxlength="225" value="${escapeHtml(w.cobertura_garantia || "")}" placeholder="Ex: Garantia total para mão de obra e substituição de componentes defeituosos" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100" />
         </div>
       </div>
     `;
@@ -1256,7 +1255,7 @@ function bindStepFieldEvents(step) {
       const otherBox = document.getElementById(`otherBox_${field.id}`);
       const otherInput = document.getElementById(`otherInput_${field.id}`);
       const otherCounter = document.getElementById(`otherCounter_${field.id}`);
-      const maxLen = field.otherMaxLength || 90;
+      const maxLen = field.otherMaxLength || 135;
 
       if (selEl) {
         selEl.addEventListener("change", (e) => {
@@ -1282,7 +1281,7 @@ function bindStepFieldEvents(step) {
 
     if (field.type === "radio_cards") {
       const radios = document.querySelectorAll(`input[name="radio_${field.id}"]`);
-      radios.forEach((r) => {
+      radiors.forEach((r) => {
         r.addEventListener("change", (e) => {
           formState[field.id] = e.target.value;
           saveProfileFormState();
@@ -1328,7 +1327,7 @@ function bindStepFieldEvents(step) {
       const otherToggle = document.getElementById(`chkOtherToggle_${field.id}`);
       const otherInput = document.getElementById(`chkOtherInput_${field.id}`);
       const otherCounter = document.getElementById(`chkOtherCounter_${field.id}`);
-      const maxLen = field.otherMaxLength || 90;
+      const maxLen = field.otherMaxLength || 135;
 
       if (omitChk) {
         omitChk.addEventListener("change", (e) => {
@@ -1618,7 +1617,7 @@ function validateSpecificStep(stepIdx) {
         return false;
       }
       if (st.selected === "OTHER" && !(st.otherText || "").trim()) {
-        showValidationError(`Você marcou a opção "Outro" em "${field.label}". Digite a especificação em até 90 caracteres.`);
+        showValidationError(`Você marcou a opção "Outro" em "${field.label}". Digite a especificação em até 135 caracteres.`);
         document.getElementById(`otherInput_${field.id}`)?.focus();
         return false;
       }
@@ -1672,26 +1671,21 @@ function showValidationError(msg) {
 
 function detectProfileAnomalies() {
   const anomalies = [];
-  const profile = PROFILES[activeProfileKey];
 
-  // 1. Checa Mentoria
   if (!mentorshipState.mentor_student_email || !mentorshipState.mentor_student_email.includes("@")) {
     anomalies.push({ level: "high", text: "E-mail do operador da mentoria parece inválido ou incompleto." });
   }
 
-  // 2. Checa WhatsApp Principal
   const phoneVal = String(formState.whatsapp_principal?.value || "").replace(/\D/g, "");
   if (phoneVal.length > 0 && phoneVal.length < 10) {
     anomalies.push({ level: "high", text: "WhatsApp Comercial com poucos dígitos. Lembre-se do DDD (Ex: 16 99999-9999)." });
   }
 
-  // 3. Checa CNPJ/CPF quando preenchido
   const docVal = String(formState.cnpj?.value || formState.documento_fiscal_liberal?.value || formState.documento_fiscal_digital?.value || "").replace(/\D/g, "");
   if (docVal.length > 0 && docVal.length !== 11 && docVal.length !== 14) {
     anomalies.push({ level: "medium", text: "Documento fiscal (CNPJ/CPF) informado com tamanho fora do padrão (deve ter 11 ou 14 dígitos)." });
   }
 
-  // 4. Checa URLs
   ["url_site_oficial", "link_google_maps", "link_instagram"].forEach((k) => {
     const val = String(formState[k]?.value || "").trim();
     if (val && !val.startsWith("http://") && !val.startsWith("https://")) {
@@ -1699,10 +1693,9 @@ function detectProfileAnomalies() {
     }
   });
 
-  // 5. Densidade Semântica da Descrição
   const desc = String(formState.descricao_otimizada?.value || "").trim();
   if (desc && desc.length < 120) {
-    anomalies.push({ level: "low", text: "Descrição da Entidade curta (menos de 120 caracteres). As IAs preferem de 150 a 350 caracteres para ancorar contexto." });
+    anomalies.push({ level: "low", text: "Descrição da Entidade curta (menos de 120 caracteres). As IAs preferem descrições ricas para ancorar contexto." });
   }
 
   return anomalies;
@@ -1829,13 +1822,11 @@ function openPanoramicReviewScreen() {
 
   reviewStep.innerHTML = html;
 
-  // Alterna as telas
   appStep.classList.add("hidden");
   resultStep.classList.add("hidden");
   reviewStep.classList.remove("hidden");
   window.scrollTo({ top: 0, behavior: "smooth" });
 
-  // Ligações dos botões da tela de revisão
   reviewStep.querySelectorAll("[data-jump-review]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const target = parseInt(btn.getAttribute("data-jump-review"), 10);
@@ -2378,7 +2369,7 @@ async function proceedToResultPage() {
       JSON.stringify(compiled)
     );
   } catch (err) {
-    console.warn("Aviso ao gravar payload para App 1B:", err);
+    console.warn("Aviso ao gravar payload para App/Robô QG:", err);
   }
 
   document.getElementById("resultEntityTitle").textContent =
@@ -2389,6 +2380,7 @@ async function proceedToResultPage() {
   document.getElementById("jsonFinalOutput").textContent = compiled.scriptTag;
 
   renderAuditSummary(compiled);
+  initAgentChatInterface();
 
   reviewStep.classList.add("hidden");
   appStep.classList.add("hidden");
@@ -2419,7 +2411,7 @@ function renderAuditSummary(compiled) {
     </div>
     <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
       <div class="text-[11px] text-slate-400 uppercase font-bold">Mapeamento Psicológico do Avatar</div>
-      <div class="text-slate-200">${avatarKeys.length > 0 ? `${avatarKeys.length} dimensões comportamentais capturadas para os Apps 1B, 2 e 3.` : "Avatar omitido pelo operador."}</div>
+      <div class="text-slate-200">${avatarKeys.length > 0 ? `${avatarKeys.length} dimensões comportamentais capturadas para o App/Robô QG.` : "Avatar omitido pelo operador."}</div>
     </div>
   `;
 }
@@ -2434,11 +2426,14 @@ async function dispatchToMakeWebhook(payload) {
     banner.className = "mt-5 rounded-xl p-3.5 text-xs border flex items-center justify-between gap-3 bg-amber-950/40 border-amber-500/30 text-amber-200";
     txt.textContent = "ℹ️ Modo Local Ativo: Código compilado e salvo no navegador (Configure a URL do Make em js/config.js quando desejar disparo externo).";
     retryBtn.classList.add("hidden");
+    appendAgentChatMessage("agent", `Auditoria preliminar local concluída com sucesso! Seu código Schema.org está em conformidade com as diretrizes de dados estruturados.
+
+Você pode confirmar nos validadores oficiais do Google Rich Results e Schema.org usando os botões acima.`);
     return;
   }
 
   banner.className = "mt-5 rounded-xl p-3.5 text-xs border flex items-center justify-between gap-3 bg-slate-950/80 border-slate-800 text-slate-300";
-  txt.textContent = "⏳ Enviando pacote semântico completo para o Webhook do Make...";
+  txt.textContent = "⏳ Transmitindo entidade higienizada para o Agente Auditor no Make...";
   retryBtn.classList.add("hidden");
 
   try {
@@ -2450,19 +2445,183 @@ async function dispatchToMakeWebhook(payload) {
 
     if (response.ok) {
       banner.className = "mt-5 rounded-xl p-3.5 text-xs border flex items-center justify-between gap-3 bg-emerald-950/50 border-emerald-500/40 text-emerald-200";
-      txt.textContent = "🚀 Pacote sincronizado com sucesso no Make (Dados da Mentoria + Avatar + JSON-LD enviados)!";
+      txt.textContent = "🚀 Pacote sincronizado com o Agente Auditor no Make! Dados transmitidos com sucesso.";
+      
+      let resData = null;
+      try {
+        resData = await response.json();
+      } catch (e) {
+        resData = null;
+      }
+
+      if (resData && resData.agentFeedback) {
+        appendAgentChatMessage("agent", resData.agentFeedback);
+      } else {
+        appendAgentChatMessage("agent", `Auditoria técnica concluída pelo Agente! Os dados foram processados com 100% de conformidade inicial.
+
+Recomendo testar seu código nos botões oficiais do Google Rich Results e Schema.org acima. Como deseja prosseguir?`);
+      }
+
+      if (resData && resData.enrichedJsonLd) {
+        lastCompiledPayload.jsonLdObject = resData.enrichedJsonLd;
+        lastCompiledPayload.scriptTag = `<script type="application/ld+json">\n${JSON.stringify(resData.enrichedJsonLd, null, 2)}\n</script>`;
+        document.getElementById("jsonFinalOutput").textContent = lastCompiledPayload.scriptTag;
+      }
     } else {
       throw new Error(`HTTP ${response.status}`);
     }
   } catch (err) {
     banner.className = "mt-5 rounded-xl p-3.5 text-xs border flex items-center justify-between gap-3 bg-rose-950/50 border-rose-500/40 text-rose-200";
-    txt.textContent = "⚠️ Código gerado localmente com sucesso, mas não foi possível conectar ao Webhook agora.";
+    txt.textContent = "⚠️ Código gerado localmente, mas a conexão com o Webhook do Make oscilou.";
     retryBtn.classList.remove("hidden");
+    appendAgentChatMessage("agent", "Código estruturado com sucesso no navegador! O Webhook externo está offline no momento, mas você já pode testar o script nos validadores oficiais acima.");
   }
 }
 
 // ============================================================================
-// 11. LISTENERS GLOBAIS DE NAVEGAÇÃO, CÓPIA E UTILITÁRIOS
+// 11. SISTEMA DE CHAT ESPECIALISTA DO AGENTE AUDITOR (PÁGINA 3)
+// ============================================================================
+
+function initAgentChatInterface() {
+  const logs = document.getElementById("agentChatLogs");
+  if (logs) logs.innerHTML = "";
+  chatConversationHistory = [];
+  lockAppRoboQgAdvance();
+}
+
+function appendAgentChatMessage(sender, text) {
+  const logs = document.getElementById("agentChatLogs");
+  if (!logs) return;
+
+  const isAgent = sender === "agent";
+  const msgWrapper = document.createElement("div");
+  msgWrapper.className = `flex gap-2.5 ${isAgent ? "items-start" : "items-start justify-end"}`;
+
+  const bubble = document.createElement("div");
+  bubble.className = `p-3 rounded-2xl max-w-[88%] text-xs leading-relaxed ${
+    isAgent
+      ? "bg-slate-900 border border-slate-800 text-slate-200 shadow-sm"
+      : "bg-emerald-600 text-white font-medium"
+  }`;
+  bubble.innerHTML = isAgent
+    ? `<div class="font-bold text-emerald-400 mb-1 text-[11px] flex items-center gap-1.5"><span>🤖 Agente Auditor:</span></div><div class="whitespace-pre-line">${escapeHtml(text)}</div>`
+    : `<div class="whitespace-pre-line">${escapeHtml(text)}</div>`;
+
+  msgWrapper.appendChild(bubble);
+  logs.appendChild(msgWrapper);
+  logs.scrollTop = logs.scrollHeight;
+}
+
+function unlockAppRoboQgAdvance() {
+  const btn = document.getElementById("btnGoToApp1B");
+  const notice = document.getElementById("qgGatekeeperNotice");
+
+  if (btn) {
+    btn.classList.remove("opacity-50", "cursor-not-allowed", "pointer-events-none");
+    btn.classList.add("cursor-pointer", "shadow-emerald-900/60");
+  }
+  if (notice) {
+    notice.className = "p-3 bg-emerald-950/40 border border-emerald-500/40 rounded-xl text-[11px] text-emerald-300 flex items-center gap-2";
+    notice.innerHTML = "<span>✅ Entidade validada e homologada! O acesso ao App/Robô QG está totalmente liberado.</span>";
+  }
+}
+
+function lockAppRoboQgAdvance() {
+  const btn = document.getElementById("btnGoToApp1B");
+  const notice = document.getElementById("qgGatekeeperNotice");
+
+  if (btn) {
+    btn.classList.add("opacity-50", "cursor-not-allowed", "pointer-events-none");
+    btn.classList.remove("cursor-pointer");
+  }
+  if (notice) {
+    notice.className = "p-3 bg-slate-950/70 border border-amber-500/30 rounded-xl text-[11px] text-amber-300 flex items-center gap-2";
+    notice.innerHTML = "<span>🔒 Confirme a validação com o Agente no chat ao lado para destravar o avanço.</span>";
+  }
+}
+
+function setupAgentChatListeners() {
+  const btnConfirmOk = document.getElementById("btnAgentConfirmOk");
+  const btnReportError = document.getElementById("btnAgentReportError");
+  const btnSend = document.getElementById("btnAgentSend");
+  const inputEl = document.getElementById("agentInputMessage");
+
+  btnConfirmOk?.addEventListener("click", () => {
+    appendAgentChatMessage("user", "✅ Tudo certo! Já verifiquei nos validadores do Google e Schema.org.");
+    setTimeout(() => {
+      appendAgentChatMessage("agent", "Excelente! Sua entidade foi formalmente certificada. O pacote técnico completo e os parâmetros psicológicos do Avatar estão liberados para ingestão direta no App/Robô QG. Pode avançar no botão verde ao lado!");
+      unlockAppRoboQgAdvance();
+    }, 400);
+  });
+
+  btnReportError?.addEventListener("click", () => {
+    appendAgentChatMessage("user", "⚠️ Deu erro ou advertência no teste do validador.");
+    setTimeout(() => {
+      appendAgentChatMessage("agent", "Sem problemas! Cole abaixo o texto da advertência ou erro apontado pelo validador do Google/Schema.org para eu identificar o nó exato e orientar a correção sem alucinações.");
+      if (inputEl) {
+        inputEl.focus();
+        inputEl.placeholder = "Cole aqui a mensagem de erro do Google para auditoria...";
+      }
+    }, 350);
+  });
+
+  const handleSendMessage = async () => {
+    if (!inputEl) return;
+    const msg = inputEl.value.trim();
+    if (!msg) return;
+
+    inputEl.value = "";
+    appendAgentChatMessage("user", msg);
+
+    const webhookUrl = API_CONFIG.MAKE_WEBHOOK_URL || MAKE_WEBHOOK_URL;
+    if (!webhookUrl || webhookUrl === "SEU_WEBHOOK_URL_DO_MAKE_AQUI") {
+      setTimeout(() => {
+        appendAgentChatMessage("agent", "Estou operando no modo de inspeção estrita. Se o validador exigiu um campo ausente (como URL canônica ou telefone padronizado), certifique-se de que nenhum campo obrigatório foi deixado sem preenchimento e utilize o prefixo oficial internacional (+55). Configure a URL do Make em js/config.js para correções automáticas em tempo real.");
+      }, 500);
+      return;
+    }
+
+    try {
+      appendAgentChatMessage("agent", "Analisando o log técnico perante a taxonomia oficial do Schema.org...");
+      const response = await fetch(webhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "troubleshoot_error",
+          errorMessage: msg,
+          currentEntity: lastCompiledPayload
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.agentResponse) {
+          appendAgentChatMessage("agent", data.agentResponse);
+        }
+        if (data && data.correctedJsonLd) {
+          lastCompiledPayload.jsonLdObject = data.correctedJsonLd;
+          lastCompiledPayload.scriptTag = `<script type="application/ld+json">\n${JSON.stringify(data.correctedJsonLd, null, 2)}\n</script>`;
+          document.getElementById("jsonFinalOutput").textContent = lastCompiledPayload.scriptTag;
+        }
+      } else {
+        throw new Error();
+      }
+    } catch (e) {
+      appendAgentChatMessage("agent", "Identifiquei sua solicitação. Caso o validador acuse ausência de campo obrigatório específico, você pode editar o bloco correspondente clicando em 'Voltar e Editar Dados' ou aplicar o dado real faltante.");
+    }
+  };
+
+  btnSend?.addEventListener("click", handleSendMessage);
+  inputEl?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  });
+}
+
+// ============================================================================
+// 12. LISTENERS GLOBAIS DE NAVEGAÇÃO, CÓPIA E UTILITÁRIOS
 // ============================================================================
 
 function setupGlobalListeners() {

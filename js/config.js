@@ -11,7 +11,7 @@ export const API_CONFIG = {
   AI_PROVIDER: "gemini",
   GEMINI_API_KEY: "",
   OPENAI_API_KEY: "",
-  MAKE_WEBHOOK_URL: "SEU_WEBHOOK_URL_DO_MAKE_AQUI",
+  MAKE_WEBHOOK_URL: "https://hook.us2.make.com/ycnown1x87rj8lsj3xpl0egavj76tzrb",
   APP_1B_REDIRECT_URL: "#app-robo-qg",
   STORAGE_PREFIX: "geo_entity_engine_v2_"
 };

@@ -15,6 +15,9 @@ import {
   PROFILES
 } from "./config.js";
 
+// FALLBACK DA URL OFICIAL DO WEBHOOK DO MAKE
+const DEFAULT_MAKE_URL = "https://hook.us2.make.com/ycnown1x87rj8lsj3xpl0egavj76tzrb";
+
 // ESTADO GLOBAL DA APLICAÇÃO
 let activeProfileKey = null;
 let currentStepIndex = 0;
@@ -1281,7 +1284,7 @@ function bindStepFieldEvents(step) {
 
     if (field.type === "radio_cards") {
       const radios = document.querySelectorAll(`input[name="radio_${field.id}"]`);
-      radiors.forEach((r) => {
+      radios.forEach((r) => {
         r.addEventListener("change", (e) => {
           formState[field.id] = e.target.value;
           saveProfileFormState();
@@ -2421,8 +2424,8 @@ async function dispatchToMakeWebhook(payload) {
   const txt = document.getElementById("webhookStatusText");
   const retryBtn = document.getElementById("btnRetryWebhook");
 
-  const webhookUrl = API_CONFIG.MAKE_WEBHOOK_URL || MAKE_WEBHOOK_URL;
-  if (!webhookUrl || webhookUrl === "SEU_WEBHOOK_URL_DO_MAKE_AQUI") {
+  const webhookUrl = API_CONFIG?.MAKE_WEBHOOK_URL || MAKE_WEBHOOK_URL || DEFAULT_MAKE_URL;
+  if (!webhookUrl || webhookUrl.includes("SEU_WEBHOOK_URL_DO_MAKE_AQUI")) {
     banner.className = "mt-5 rounded-xl p-3.5 text-xs border flex items-center justify-between gap-3 bg-amber-950/40 border-amber-500/30 text-amber-200";
     txt.textContent = "ℹ️ Modo Local Ativo: Código compilado e salvo no navegador (Configure a URL do Make em js/config.js quando desejar disparo externo).";
     retryBtn.classList.add("hidden");
@@ -2454,8 +2457,9 @@ Você pode confirmar nos validadores oficiais do Google Rich Results e Schema.or
         resData = null;
       }
 
-      if (resData && resData.agentFeedback) {
-        appendAgentChatMessage("agent", resData.agentFeedback);
+      const agentMsg = resData?.agentResponse || resData?.agentFeedback || resData?.response || resData?.reply;
+      if (agentMsg) {
+        appendAgentChatMessage("agent", agentMsg);
       } else {
         appendAgentChatMessage("agent", `Auditoria técnica concluída pelo Agente! Os dados foram processados com 100% de conformidade inicial.
 
@@ -2573,13 +2577,7 @@ function setupAgentChatListeners() {
     inputEl.value = "";
     appendAgentChatMessage("user", msg);
 
-    const webhookUrl = API_CONFIG.MAKE_WEBHOOK_URL || MAKE_WEBHOOK_URL;
-    if (!webhookUrl || webhookUrl === "SEU_WEBHOOK_URL_DO_MAKE_AQUI") {
-      setTimeout(() => {
-        appendAgentChatMessage("agent", "Estou operando no modo de inspeção estrita. Se o validador exigiu um campo ausente (como URL canônica ou telefone padronizado), certifique-se de que nenhum campo obrigatório foi deixado sem preenchimento e utilize o prefixo oficial internacional (+55). Configure a URL do Make em js/config.js para correções automáticas em tempo real.");
-      }, 500);
-      return;
-    }
+    const webhookUrl = API_CONFIG?.MAKE_WEBHOOK_URL || MAKE_WEBHOOK_URL || DEFAULT_MAKE_URL;
 
     try {
       appendAgentChatMessage("agent", "Analisando o log técnico perante a taxonomia oficial do Schema.org...");
@@ -2595,8 +2593,10 @@ function setupAgentChatListeners() {
 
       if (response.ok) {
         const data = await response.json();
-        if (data && data.agentResponse) {
-          appendAgentChatMessage("agent", data.agentResponse);
+        const incomingText = data?.agentResponse || data?.response || data?.reply || data?.message;
+        
+        if (incomingText) {
+          appendAgentChatMessage("agent", incomingText);
         }
         if (data && data.correctedJsonLd) {
           lastCompiledPayload.jsonLdObject = data.correctedJsonLd;

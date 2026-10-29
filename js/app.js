@@ -80,6 +80,19 @@ document.addEventListener("DOMContentLoaded", () => {
   setupAgentChatListeners();
 });
 
+// DETECTOR DE CARACTERES DESCONEXOS / DIGITAÇÃO ALEATÓRIA (GIBBERISH)
+function isGibberishText(str) {
+  if (!str || typeof str !== "string") return false;
+  const clean = str.trim();
+  if (clean.length < 15) return false;
+  const weirdSymbols = (clean.match(/[`~^\[\]{}\\<>_]/g) || []).length;
+  if (weirdSymbols >= 3) return true;
+  const consonantClusters = clean.match(/[bcdfghjklmnpqrstvwxyz]{6,}/gi);
+  if (consonantClusters) return true;
+  if (!clean.includes(" ") && clean.length > 30) return true;
+  return false;
+}
+
 function hasActualUserTypedData(savedRaw) {
   if (!savedRaw) return false;
   try {
@@ -124,7 +137,7 @@ function loadMentorshipState() {
       mentorshipState = { ...mentorshipState, ...JSON.parse(saved) };
     }
   } catch (e) {
-    console.warn("Erro ao ler dados de mentoria do localStorage:", e);
+    console.warn("Erro ao ler dados de mentoria:", e);
   }
 }
 
@@ -157,7 +170,6 @@ function loadProfileFormState(profileKey) {
 function saveProfileFormState() {
   if (!activeProfileKey) return;
   const profile = PROFILES[activeProfileKey];
-  
   const rawString = JSON.stringify(formState);
   if (!hasActualUserTypedData(rawString)) {
     localStorage.removeItem(API_CONFIG.STORAGE_PREFIX + profile.storageKey);
@@ -173,7 +185,7 @@ function saveProfileFormState() {
     triggerAutoSaveVisual();
     checkSavedDraftBadges();
   } catch (e) {
-    console.warn("Erro ao salvar estado do perfil:", e);
+    console.warn("Erro ao salvar rascunho:", e);
   }
 }
 
@@ -282,7 +294,7 @@ function createEmptyRepeaterItem(subfields = []) {
 }
 
 // ============================================================================
-// 2. SELEÇÃO DE PERFIL E CONTROLE DE NAVEGAÇÃO ENTRE PÁGINAS (1, 2, 2.5 e 3)
+// 2. SELEÇÃO DE PERFIL E NAVEGAÇÃO
 // ============================================================================
 
 window.selectProfile = function (profileKey) {
@@ -323,7 +335,7 @@ function returnToLanding() {
 }
 
 // ============================================================================
-// 3. RENDERIZAÇÃO DA ÁREA OPERACIONAL DA MENTORIA (TOPO DA PÁGINA 2)
+// 3. ÁREA OPERACIONAL DA MENTORIA
 // ============================================================================
 
 function renderMentorshipControlBox() {
@@ -376,12 +388,11 @@ function renderMentorshipControlBox() {
 }
 
 // ============================================================================
-// 4. RENDERIZAÇÃO DO WIZARD / STEPPER & NAVEGAÇÃO ENTRE PÍLULAS
+// 4. RENDERIZAÇÃO DO WIZARD
 // ============================================================================
 
 function canNavigateToStep(targetIndex) {
   if (targetIndex <= currentStepIndex) return true;
-
   for (let i = currentStepIndex; i < targetIndex; i++) {
     if (!validateSpecificStep(i)) {
       currentStepIndex = i;
@@ -489,14 +500,12 @@ function updateWizardNavigationButtons(profile, totalSteps) {
 function evaluateFieldCondition(field) {
   if (!field.conditionField) return true;
   const targetState = formState[field.conditionField];
-
   let actualVal = targetState;
   if (targetState && typeof targetState === "object") {
     if (targetState.selected !== undefined) actualVal = targetState.selected;
     else if (targetState.status !== undefined) actualVal = targetState.status;
     else if (targetState.value !== undefined) actualVal = targetState.value;
   }
-
   if (field.conditionVal !== undefined) return actualVal === field.conditionVal;
   if (field.conditionNotVal !== undefined) return actualVal !== field.conditionNotVal;
   if (Array.isArray(field.conditionIn)) return field.conditionIn.includes(actualVal);
@@ -526,7 +535,7 @@ function refreshConditionalFieldsInCurrentStep() {
 }
 
 // ============================================================================
-// 5. COMPONENTES DE CAMPO (HTML BUILDERS COM TOOLTIPS (i) E PLACEHOLDERS)
+// 5. COMPONENTES DE CAMPO
 // ============================================================================
 
 function renderTooltipIcon(tooltipText) {
@@ -569,7 +578,6 @@ function renderFieldMarkup(field) {
             <span>${escapeHtml(field.label)}</span>
             ${renderTooltipIcon(field.tooltip)}
           </label>
-
           <div class="flex items-center gap-3">
             ${
               field.checkboxAddon
@@ -593,7 +601,6 @@ function renderFieldMarkup(field) {
             }
           </div>
         </div>
-
         <div class="${isOmitted ? "opacity-40 pointer-events-none" : ""}" id="inputBox_${field.id}">
           ${
             field.type === "textarea" || field.type === "textarea_short"
@@ -774,7 +781,6 @@ function renderFieldMarkup(field) {
               .join("")}
           </div>
         </div>
-
         <div id="triInputBox_${field.id}" class="${obj.status === "Sim" ? "" : "hidden"} pt-2 border-t border-slate-800/80 space-y-1.5">
           <label class="block text-xs font-semibold text-emerald-400">
             ${escapeHtml(field.inputLabel || "Detalhes:")}
@@ -1193,7 +1199,7 @@ function renderFieldMarkup(field) {
 }
 
 // ============================================================================
-// 6. BINDING DE EVENTOS DOS CAMPOS DO BLOCO ATUAL
+// 6. BINDING DE EVENTOS
 // ============================================================================
 
 function bindStepFieldEvents(step) {
@@ -1546,7 +1552,7 @@ function bindStepFieldEvents(step) {
 }
 
 // ============================================================================
-// 7. VALIDAÇÃO EXCLUSIVA DE CAMPOS OBRIGATÓRIOS (RESPEITANDO OMITIR = 0)
+// 7. VALIDAÇÃO DE CAMPOS OBRIGATÓRIOS
 // ============================================================================
 
 function isStepFullyValid(stepIdx) {
@@ -1670,7 +1676,7 @@ function showValidationError(msg) {
 }
 
 // ============================================================================
-// 8. PÁGINA 2.5: REVISÃO PANORÂMICA & ROBÔ INSPETOR DE ANOMALIAS
+// 8. PÁGINA 2.5: REVISÃO & INSPETOR DE ANOMALIAS COM BARREIRA DE RUÍDO
 // ============================================================================
 
 function detectProfileAnomalies() {
@@ -1690,17 +1696,17 @@ function detectProfileAnomalies() {
     anomalies.push({ level: "medium", text: "Documento fiscal (CNPJ/CPF) informado com tamanho fora do padrão (deve ter 11 ou 14 dígitos)." });
   }
 
-  ["url_site_oficial", "link_google_maps", "link_instagram"].forEach((k) => {
-    const val = String(formState[k]?.value || "").trim();
-    if (val && !val.startsWith("http://") && !val.startsWith("https://")) {
-      anomalies.push({ level: "low", text: `O link "${k.replace(/_/g, " ")}" deve começar preferencialmente com "https://".` });
+  // Barreira direta de texto poluído em qualquer campo preenchido
+  Object.keys(formState).forEach((key) => {
+    const item = formState[key];
+    const val = typeof item === "object" ? item?.value || item?.otherText || item?.text : item;
+    if (typeof val === "string" && isGibberishText(val)) {
+      anomalies.push({
+        level: "high",
+        text: `O campo "${key.replace(/_/g, " ")}" contém digitação de teste ou caracteres desconexos.`
+      });
     }
   });
-
-  const desc = String(formState.descricao_otimizada?.value || "").trim();
-  if (desc && desc.length < 120) {
-    anomalies.push({ level: "low", text: "Descrição da Entidade curta (menos de 120 caracteres). As IAs preferem descrições ricas para ancorar contexto." });
-  }
 
   return anomalies;
 }
@@ -1710,7 +1716,6 @@ function openPanoramicReviewScreen() {
   const anomalies = detectProfileAnomalies();
 
   let html = `
-    <!-- Topo da Revisão Panorâmica -->
     <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-3">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
         <div>
@@ -1722,11 +1727,10 @@ function openPanoramicReviewScreen() {
         </span>
       </div>
       <p class="text-xs sm:text-sm text-slate-400 leading-relaxed">
-        Confira abaixo a lista completa de perguntas e respostas antes de compilar o código Schema.org final. O robô analisou seus dados para evitar erros de digitação e inconsistências de indexação.
+        Confira abaixo a lista completa antes de compilar o código Schema.org final. O robô analisou seus dados para evitar erros de digitação.
       </p>
     </div>
 
-    <!-- Painel do Robô Inspetor de Anomalias -->
     <div id="anomaliesBox" class="rounded-2xl p-6 border shadow-lg transition-all ${
       anomalies.length > 0
         ? "bg-amber-950/20 border-amber-500/40 text-amber-200"
@@ -1745,16 +1749,14 @@ function openPanoramicReviewScreen() {
           ? `<ul class="space-y-1.5 text-xs text-amber-300/90 list-disc list-inside pt-1">
               ${anomalies.map((a) => `<li>${escapeHtml(a.text)}</li>`).join("")}
             </ul>
-            <p class="text-[11px] text-slate-400 mt-2">Você pode corrigir esses pontos clicando em "Voltar e Corrigir Bloco" ou prosseguir normalmente caso as informações estejam corretas.</p>`
-          : `<p class="text-xs text-emerald-300">Nenhuma anomalia crítica de formato foi detectada. Seus dados estão prontos para compilação semântica com nota máxima de autoridade.</p>`
+            <p class="text-[11px] text-slate-400 mt-2">Você pode corrigir esses pontos clicando em "Voltar e Corrigir Bloco" ou prosseguir normalmente.</p>`
+          : `<p class="text-xs text-emerald-300">Nenhuma anomalia crítica detectada. Seus dados estão prontos para compilação.</p>`
       }
     </div>
 
-    <!-- Lista Panorâmica Pergunta a Pergunta -->
     <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
   `;
 
-  // Dados Operacionais da Mentoria
   html += `
     <div class="space-y-3 pb-6 border-b border-slate-800">
       <div class="flex items-center justify-between">
@@ -1769,7 +1771,6 @@ function openPanoramicReviewScreen() {
     </div>
   `;
 
-  // Blocos da Entidade
   profile.steps.forEach((step, sIdx) => {
     html += `
       <div class="space-y-4 pb-6 border-b border-slate-800/80 last:border-0">
@@ -1806,7 +1807,6 @@ function openPanoramicReviewScreen() {
   html += `
     </div>
 
-    <!-- Rodapé de Ações da Página 2.5 -->
     <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2 pb-12">
       <button type="button" id="btnBackToFormBlocks" class="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 font-semibold text-xs transition cursor-pointer">
         ← Voltar aos Blocos de Edição
@@ -1861,7 +1861,7 @@ function formatFieldAnswerForReview(field, st) {
     return { text: "[Não informado]", isOmitted: true };
   }
   if (st.omitted) {
-    return { text: "[Omitido conscientemente pelo operador]", isOmitted: true };
+    return { text: "[Omitido]", isOmitted: true };
   }
 
   if (["text", "email", "url", "cep", "cnpj", "phone", "textarea", "textarea_short"].includes(field.type)) {
@@ -1897,10 +1897,10 @@ function formatFieldAnswerForReview(field, st) {
   }
 
   if (field.type === "repeater") {
-    if (!Array.isArray(st) || st.length === 0) return { text: "[Nenhum item adicionado]", isOmitted: true };
+    if (!Array.isArray(st) || st.length === 0) return { text: "[Nenhum item]", isOmitted: true };
     const valid = st.filter((it) => Object.values(it).some((v) => String(v || "").trim().length > 0));
     if (valid.length === 0) return { text: "[Nenhum item preenchido]", isOmitted: true };
-    return { text: `${valid.length} item(ns) cadastrado(s) no catálogo`, isOmitted: false };
+    return { text: `${valid.length} item(ns) cadastrado(s)`, isOmitted: false };
   }
 
   if (field.type === "price_range_group") {
@@ -1908,7 +1908,7 @@ function formatFieldAnswerForReview(field, st) {
     if (st.menor_preco) parts.push(`Mín: R$ ${st.menor_preco}`);
     if (st.maior_preco) parts.push(`Máx: R$ ${st.maior_preco}`);
     if (st.ticket_medio) parts.push(`Médio: R$ ${st.ticket_medio}`);
-    return { text: parts.length > 0 ? parts.join(" | ") : "[Valores omitidos]", isOmitted: parts.length === 0 };
+    return { text: parts.length > 0 ? parts.join(" | ") : "[Omitido]", isOmitted: parts.length === 0 };
   }
 
   if (field.type === "geo_coordinates") {
@@ -1920,7 +1920,7 @@ function formatFieldAnswerForReview(field, st) {
 }
 
 // ============================================================================
-// 9. COMPILADOR DO ROBÔ SEMÂNTICO JSON-LD (REGRA ESTRITA: OMITIR = 0)
+// 9. COMPILADOR DO ROBÔ SEMÂNTICO (HIGIENIZAÇÃO E REGRA OMITIR = 0)
 // ============================================================================
 
 function compileCleanEntityAndSchema() {
@@ -2030,6 +2030,9 @@ function extractCleanFieldValue(field, st) {
     if (st.omitted) return null;
     const val = String(st.value || "").trim();
     if (!val || val === (field.defaultPrefix || "").trim()) return null;
+    // PURGA RUÍDO / DIGITAÇÃO DE TESTE DESCONEXA
+    if (isGibberishText(val)) return null;
+
     if (st.addonChecked && field.checkboxAddon) {
       return `${val} (${field.checkboxAddon.label})`;
     }
@@ -2045,6 +2048,7 @@ function extractCleanFieldValue(field, st) {
     if (!st.selected || st.selected === "Omitir" || st.selected === "Nao_Emergencia") return null;
     if (st.selected === "OTHER") {
       const custom = String(st.otherText || "").trim();
+      if (isGibberishText(custom)) return null;
       return custom || null;
     }
     const foundOpt = (field.options || []).find((o) => o.val === st.selected);
@@ -2060,6 +2064,7 @@ function extractCleanFieldValue(field, st) {
     if (!st || st.status === "Omitir") return null;
     if (st.status === "Não") return "Não";
     const detail = String(st.text || "").trim();
+    if (isGibberishText(detail)) return "Sim";
     return detail ? `Sim (${detail})` : "Sim";
   }
 
@@ -2067,7 +2072,8 @@ function extractCleanFieldValue(field, st) {
     if (st.omitted) return null;
     const list = Array.isArray(st.selected) ? [...st.selected] : [];
     if (st.otherSelected && String(st.otherText || "").trim()) {
-      list.push(String(st.otherText).trim());
+      const otherClean = String(st.otherText).trim();
+      if (!isGibberishText(otherClean)) list.push(otherClean);
     }
     return list.length > 0 ? list : null;
   }
@@ -2360,7 +2366,7 @@ function deepPurgeEmptyValues(obj) {
 }
 
 // ============================================================================
-// 10. TRANSIÇÃO FINAL PARA A PÁGINA 3 (CÓDIGO FORMATADO & WEBHOOK MAKE)
+// 10. TRANSIÇÃO PÁGINA 3 & DISPARO
 // ============================================================================
 
 async function proceedToResultPage() {
@@ -2373,7 +2379,7 @@ async function proceedToResultPage() {
       JSON.stringify(compiled)
     );
   } catch (err) {
-    console.warn("Aviso ao gravar payload para App/Robô QG:", err);
+    console.warn("Aviso ao gravar payload local:", err);
   }
 
   document.getElementById("resultEntityTitle").textContent =
@@ -2456,11 +2462,12 @@ async function dispatchToMakeWebhook(payload) {
       banner.className = "mt-5 rounded-xl p-3.5 text-xs border flex items-center justify-between gap-3 bg-emerald-950/50 border-emerald-500/40 text-emerald-200";
       txt.textContent = "🚀 Pacote sincronizado com o Agente Auditor no Make! Dados transmitidos com sucesso.";
       
+      let rawText = await response.text();
       let resData = null;
       try {
-        resData = await response.json();
+        resData = JSON.parse(rawText);
       } catch (e) {
-        resData = null;
+        resData = { agentResponse: rawText };
       }
 
       const agentMsg = resData?.agentResponse || resData?.agentFeedback || resData?.response || resData?.reply;
@@ -2502,7 +2509,7 @@ async function dispatchToMakeWebhook(payload) {
 }
 
 // ============================================================================
-// 11. SISTEMA DE CHAT ESPECIALISTA DO AGENTE AUDITOR (PÁGINA 3)
+// 11. SISTEMA DE CHAT ESPECIALISTA
 // ============================================================================
 
 function initAgentChatInterface() {
@@ -2660,7 +2667,14 @@ function setupAgentChatListeners() {
       });
 
       if (response.ok) {
-        const data = await response.json();
+        let rawText = await response.text();
+        let data = null;
+        try {
+          data = JSON.parse(rawText);
+        } catch (e) {
+          data = { agentResponse: rawText };
+        }
+
         const incomingText = data?.agentResponse || data?.response || data?.reply || data?.message;
         
         if (incomingText) {
@@ -2714,7 +2728,7 @@ function setupAgentChatListeners() {
 }
 
 // ============================================================================
-// 12. LISTENERS GLOBAIS DE NAVEGAÇÃO, CÓPIA E UTILITÁRIOS
+// 12. LISTENERS GLOBAIS
 // ============================================================================
 
 function setupGlobalListeners() {

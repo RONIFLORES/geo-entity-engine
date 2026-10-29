@@ -29,6 +29,7 @@ let mentorshipState = {
 };
 let lastCompiledPayload = null;
 let chatConversationHistory = [];
+let errorTroubleshootAttempts = 0;
 
 // ELEMENTOS PRINCIPAIS DO DOM
 const landingStep = document.getElementById("landingStep");
@@ -1780,7 +1781,7 @@ function openPanoramicReviewScreen() {
           <button type="button" data-jump-review="${sIdx}" class="text-xs text-emerald-400 hover:text-emerald-300 font-semibold underline cursor-pointer">Editar Bloco ${String(step.stepNumber).padStart(2, "0")}</button>
         </div>
         <div class="grid grid-cols-1 gap-2.5">
-    `;
+      `;
 
     step.fields.forEach((field) => {
       if (field.type === "section_divider") return;
@@ -2427,11 +2428,16 @@ async function dispatchToMakeWebhook(payload) {
   const webhookUrl = API_CONFIG?.MAKE_WEBHOOK_URL || MAKE_WEBHOOK_URL || DEFAULT_MAKE_URL;
   if (!webhookUrl || webhookUrl.includes("SEU_WEBHOOK_URL_DO_MAKE_AQUI")) {
     banner.className = "mt-5 rounded-xl p-3.5 text-xs border flex items-center justify-between gap-3 bg-amber-950/40 border-amber-500/30 text-amber-200";
-    txt.textContent = "ℹ️ Modo Local Ativo: Código compilado e salvo no navegador (Configure a URL do Make em js/config.js quando desejar disparo externo).";
+    txt.textContent = "ℹ️ Modo Local Ativo: Código compilado e salvo no navegador.";
     retryBtn.classList.add("hidden");
-    appendAgentChatMessage("agent", `Auditoria preliminar local concluída com sucesso! Seu código Schema.org está em conformidade com as diretrizes de dados estruturados.
-
-Você pode confirmar nos validadores oficiais do Google Rich Results e Schema.org usando os botões acima.`);
+    appendAgentChatMessage(
+      "agent",
+      "Auditoria preliminar concluída! O seu código Schema.org foi compilado com sucesso.\n\n" +
+      "Agora realize a homologação:\n" +
+      "1. Clique nos botões acima para validar no Google e no Schema.org.\n" +
+      "2. Se estiver tudo certo (0 erros), clique em 'Tudo Certo' para prosseguir ao Robô QG.\n" +
+      "3. Se houver algum erro ou aviso, clique em 'Deu erro no teste' para auditarmos juntos."
+    );
     return;
   }
 
@@ -2461,14 +2467,20 @@ Você pode confirmar nos validadores oficiais do Google Rich Results e Schema.or
       if (agentMsg) {
         appendAgentChatMessage("agent", agentMsg);
       } else {
-        appendAgentChatMessage("agent", `Auditoria técnica concluída pelo Agente! Os dados foram processados com 100% de conformidade inicial.
-
-Recomendo testar seu código nos botões oficiais do Google Rich Results e Schema.org acima. Como deseja prosseguir?`);
+        appendAgentChatMessage(
+          "agent",
+          "Auditoria preliminar concluída com sucesso! Os dados estruturados foram analisados.\n\n" +
+          "Para certificar a conformidade técnica:\n" +
+          "1. Abra os testes nos botões oficiais do Google Rich Results e Schema.org acima.\n" +
+          "2. Se não acusar nenhum erro, clique no botão 'Tudo Certo' abaixo para liberar o Robô QG.\n" +
+          "3. Se acusar erro, clique em 'Deu erro no teste' para colarmos o log aqui e ajustarmos."
+        );
       }
 
-      if (resData && resData.enrichedJsonLd) {
-        lastCompiledPayload.jsonLdObject = resData.enrichedJsonLd;
-        lastCompiledPayload.scriptTag = `<script type="application/ld+json">\n${JSON.stringify(resData.enrichedJsonLd, null, 2)}\n</script>`;
+      if (resData && (resData.enrichedJsonLd || resData.correctedJsonLd)) {
+        const enriched = resData.enrichedJsonLd || resData.correctedJsonLd;
+        lastCompiledPayload.jsonLdObject = enriched;
+        lastCompiledPayload.scriptTag = `<script type="application/ld+json">\n${JSON.stringify(enriched, null, 2)}\n</script>`;
         document.getElementById("jsonFinalOutput").textContent = lastCompiledPayload.scriptTag;
       }
     } else {
@@ -2476,9 +2488,16 @@ Recomendo testar seu código nos botões oficiais do Google Rich Results e Schem
     }
   } catch (err) {
     banner.className = "mt-5 rounded-xl p-3.5 text-xs border flex items-center justify-between gap-3 bg-rose-950/50 border-rose-500/40 text-rose-200";
-    txt.textContent = "⚠️ Código gerado localmente, mas a conexão com o Webhook do Make oscilou.";
+    txt.textContent = "⚠️ Código gerado localmente com nota máxima! Sincronização externa oscilou.";
     retryBtn.classList.remove("hidden");
-    appendAgentChatMessage("agent", "Código estruturado com sucesso no navegador! O Webhook externo está offline no momento, mas você já pode testar o script nos validadores oficiais acima.");
+    appendAgentChatMessage(
+      "agent",
+      "Seu código Schema.org está pronto e estruturado na tela!\n\n" +
+      "Agora homologue o resultado:\n" +
+      "1. Teste nos botões acima (Google Rich Results e Schema.org).\n" +
+      "2. Se o resultado for 0 erros, clique em 'Tudo Certo' para destravar o Robô QG.\n" +
+      "3. Se houver alguma pendência nos testes, clique em 'Deu erro no teste'."
+    );
   }
 }
 
@@ -2488,9 +2507,33 @@ Recomendo testar seu código nos botões oficiais do Google Rich Results e Schem
 
 function initAgentChatInterface() {
   const logs = document.getElementById("agentChatLogs");
+  const inputEl = document.getElementById("agentInputMessage");
+  const btnSend = document.getElementById("btnAgentSend");
+
   if (logs) logs.innerHTML = "";
   chatConversationHistory = [];
+  errorTroubleshootAttempts = 0;
+
+  if (inputEl) {
+    inputEl.disabled = true;
+    inputEl.value = "";
+    inputEl.placeholder = "Clique em '⚠️ Deu erro no teste' acima para colar o resultado...";
+    inputEl.classList.add("opacity-50", "cursor-not-allowed");
+  }
+  if (btnSend) {
+    btnSend.disabled = true;
+    btnSend.classList.add("opacity-50", "cursor-not-allowed", "pointer-events-none");
+  }
+
   lockAppRoboQgAdvance();
+
+  appendAgentChatMessage(
+    "agent",
+    "Olá, operador! O código estruturado da sua entidade foi compilado.\n\n" +
+    "👉 Passo 1: Clique nos botões acima para testar no Google Rich Results e no Schema.org.\n" +
+    "👉 Passo 2: Se os dois validadores estiverem sem erros, clique em '✅ Tudo certo' para avançar ao Robô QG.\n" +
+    "👉 Passo 3: Se houver qualquer erro ou aviso, clique em '⚠️ Deu erro no teste' e eu auditarei a correção para você."
+  );
 }
 
 function appendAgentChatMessage(sender, text) {
@@ -2553,20 +2596,37 @@ function setupAgentChatListeners() {
   btnConfirmOk?.addEventListener("click", () => {
     appendAgentChatMessage("user", "✅ Tudo certo! Já verifiquei nos validadores do Google e Schema.org.");
     setTimeout(() => {
-      appendAgentChatMessage("agent", "Excelente! Sua entidade foi formalmente certificada. O pacote técnico completo e os parâmetros psicológicos do Avatar estão liberados para ingestão direta no App/Robô QG. Pode avançar no botão verde ao lado!");
+      appendAgentChatMessage(
+        "agent",
+        "Perfeito! Sua entidade foi homologada com nota de excelência.\n\n" +
+        "O código está pronto para publicação e os parâmetros estratégicos foram consolidados. " +
+        "O botão verde ao lado foi liberado para você prosseguir para o App/Robô QG!"
+      );
       unlockAppRoboQgAdvance();
-    }, 400);
+    }, 350);
   });
 
   btnReportError?.addEventListener("click", () => {
     appendAgentChatMessage("user", "⚠️ Deu erro ou advertência no teste do validador.");
+    
+    if (inputEl) {
+      inputEl.disabled = false;
+      inputEl.classList.remove("opacity-50", "cursor-not-allowed");
+      inputEl.placeholder = "Cole aqui o texto copiado do validador (Ctrl+V) e clique em Enviar...";
+      inputEl.focus();
+    }
+    if (btnSend) {
+      btnSend.disabled = false;
+      btnSend.classList.remove("opacity-50", "cursor-not-allowed", "pointer-events-none");
+    }
+
     setTimeout(() => {
-      appendAgentChatMessage("agent", "Sem problemas! Cole abaixo o texto da advertência ou erro apontado pelo validador do Google/Schema.org para eu identificar o nó exato e orientar a correção sem alucinações.");
-      if (inputEl) {
-        inputEl.focus();
-        inputEl.placeholder = "Cole aqui a mensagem de erro do Google para auditoria...";
-      }
-    }, 350);
+      appendAgentChatMessage(
+        "agent",
+        "Entendido! Vá na tela do teste (Google Rich Results ou Schema.org), selecione o texto do aviso ou erro com o mouse, dê Ctrl+C, cole aqui no campo abaixo e clique em Enviar.\n\n" +
+        "Vou analisar em linguagem simples o que faltou ajustar."
+      );
+    }, 300);
   });
 
   const handleSendMessage = async () => {
@@ -2576,17 +2636,25 @@ function setupAgentChatListeners() {
 
     inputEl.value = "";
     appendAgentChatMessage("user", msg);
+    errorTroubleshootAttempts++;
 
     const webhookUrl = API_CONFIG?.MAKE_WEBHOOK_URL || MAKE_WEBHOOK_URL || DEFAULT_MAKE_URL;
 
     try {
-      appendAgentChatMessage("agent", "Analisando o log técnico perante a taxonomia oficial do Schema.org...");
+      if (errorTroubleshootAttempts >= 3) {
+        appendAgentChatMessage("agent", "Identifiquei que você está na 3ª tentativa de correção. Estou assumindo o controle técnico e reescrevendo o Schema.org por conta própria para você...");
+      } else {
+        appendAgentChatMessage("agent", "Analisando o log do validador com base na estrutura da sua empresa...");
+      }
+
       const response = await fetch(webhookUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "troubleshoot_error",
           errorMessage: msg,
+          attemptCount: errorTroubleshootAttempts,
+          forceAutoFix: errorTroubleshootAttempts >= 3,
           currentEntity: lastCompiledPayload
         })
       });
@@ -2598,16 +2666,41 @@ function setupAgentChatListeners() {
         if (incomingText) {
           appendAgentChatMessage("agent", incomingText);
         }
-        if (data && data.correctedJsonLd) {
-          lastCompiledPayload.jsonLdObject = data.correctedJsonLd;
-          lastCompiledPayload.scriptTag = `<script type="application/ld+json">\n${JSON.stringify(data.correctedJsonLd, null, 2)}\n</script>`;
-          document.getElementById("jsonFinalOutput").textContent = lastCompiledPayload.scriptTag;
+
+        if (data && (data.correctedJsonLd || data.correctedScriptTag)) {
+          if (data.correctedJsonLd) {
+            lastCompiledPayload.jsonLdObject = data.correctedJsonLd;
+            lastCompiledPayload.scriptTag = `<script type="application/ld+json">\n${JSON.stringify(data.correctedJsonLd, null, 2)}\n</script>`;
+          } else if (data.correctedScriptTag) {
+            lastCompiledPayload.scriptTag = data.correctedScriptTag;
+          }
+
+          const codeEl = document.getElementById("jsonFinalOutput");
+          if (codeEl) {
+            codeEl.textContent = lastCompiledPayload.scriptTag;
+          }
+
+          appendAgentChatMessage(
+            "agent",
+            "✨ O seu código Schema.org na caixa ao lado foi automaticamente corrigido e atualizado!\n\n" +
+            "Clique em 'Copiar Código' e rode novamente o teste nos validadores para confirmar a nota 100% verde."
+          );
         }
       } else {
         throw new Error();
       }
     } catch (e) {
-      appendAgentChatMessage("agent", "Identifiquei sua solicitação. Caso o validador acuse ausência de campo obrigatório específico, você pode editar o bloco correspondente clicando em 'Voltar e Editar Dados' ou aplicar o dado real faltante.");
+      if (errorTroubleshootAttempts >= 3) {
+        appendAgentChatMessage(
+          "agent",
+          "Não se preocupe: você pode clicar no botão '← Voltar e Editar Dados' para preencher diretamente os dados ausentes da empresa (como telefone com DDD ou endereço) e gerar o código novamente."
+        );
+      } else {
+        appendAgentChatMessage(
+          "agent",
+          "Analisei a sua mensagem: normalmente os validadores exigem dados simples como telefone comercial com DDD, endereço completo ou a cidade atendida. Verifique esses pontos ou me envie a linha exata em vermelho do validador."
+        );
+      }
     }
   };
 

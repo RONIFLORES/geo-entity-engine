@@ -2547,6 +2547,17 @@ function appendAgentChatMessage(sender, text) {
   const logs = document.getElementById("agentChatLogs");
   if (!logs) return;
 
+  // Blinda contra [object Object]: se vier objeto, extrai o texto ou converte para JSON legível
+  let cleanText = text;
+  if (typeof text === "object" && text !== null) {
+    cleanText = text.agentResponse || text.response || text.reply || text.message || text.text || JSON.stringify(text, null, 2);
+  } else if (typeof text !== "string") {
+    cleanText = String(text || "");
+  }
+
+  // Remove aspas excedentes das bordas se houver
+  cleanText = cleanText.replace(/^"|"$/g, '').trim();
+
   const isAgent = sender === "agent";
   const msgWrapper = document.createElement("div");
   msgWrapper.className = `flex gap-2.5 ${isAgent ? "items-start" : "items-start justify-end"}`;
@@ -2558,8 +2569,8 @@ function appendAgentChatMessage(sender, text) {
       : "bg-emerald-600 text-white font-medium"
   }`;
   bubble.innerHTML = isAgent
-    ? `<div class="font-bold text-emerald-400 mb-1 text-[11px] flex items-center gap-1.5"><span>🤖 Agente Auditor:</span></div><div class="whitespace-pre-line">${escapeHtml(text)}</div>`
-    : `<div class="whitespace-pre-line">${escapeHtml(text)}</div>`;
+    ? `<div class="font-bold text-emerald-400 mb-1 text-[11px] flex items-center gap-1.5"><span>🤖 Agente Auditor:</span></div><div class="whitespace-pre-line">${escapeHtml(cleanText)}</div>`
+    : `<div class="whitespace-pre-line">${escapeHtml(cleanText)}</div>`;
 
   msgWrapper.appendChild(bubble);
   logs.appendChild(msgWrapper);

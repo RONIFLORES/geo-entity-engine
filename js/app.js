@@ -2669,16 +2669,23 @@ function setupAgentChatListeners() {
       if (response.ok) {
         let rawText = await response.text();
         let data = null;
+        let incomingText = "";
+
+        // Tenta fazer o parse do JSON de forma resiliente
         try {
           data = JSON.parse(rawText);
+          incomingText = data?.agentResponse || data?.response || data?.reply || data?.message || "";
         } catch (e) {
-          data = { agentResponse: rawText };
+          console.warn("Aviso: Falha ao converter resposta do Make para JSON. Exibindo texto bruto.", e);
+          incomingText = rawText;
         }
 
-        const incomingText = data?.agentResponse || data?.response || data?.reply || data?.message;
-        
-        if (incomingText) {
+        // Se encontrou texto válido, renderiza no chat
+        if (incomingText && incomingText.trim() !== "") {
+          incomingText = incomingText.replace(/^"|"$/g, '').trim();
           appendAgentChatMessage("agent", incomingText);
+        } else {
+          appendAgentChatMessage("agent", "Processamento concluído, mas nenhuma resposta legível foi retornada.");
         }
 
         if (data && (data.correctedJsonLd || data.correctedScriptTag)) {
@@ -2701,7 +2708,7 @@ function setupAgentChatListeners() {
           );
         }
       } else {
-        throw new Error();
+        throw new Error(`HTTP ${response.status}`);
       }
     } catch (e) {
       if (errorTroubleshootAttempts >= 3) {

@@ -1956,8 +1956,9 @@ function compileCleanEntityAndSchema() {
   const markOmitted = () => { omittedPropsCount++; };
   const markActive = () => { activePropsCount++; };
 
-  profile.steps.forEach((step) => {
-    const isAvatarStep = step.id.includes("avatar");
+  profile.steps.forEach((step, sIdx) => {
+    // ATUALIZAÇÃO: O Raio-X Psicológico agora é sempre dinamizado para o último bloco da esteira atual
+    const isAvatarStep = (sIdx === profile.steps.length - 1);
 
     step.fields.forEach((field) => {
       if (field.type === "section_divider") return;
@@ -2455,7 +2456,8 @@ async function dispatchToMakeWebhook(payload) {
     const response = await fetch(webhookUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+      // ATUALIZAÇÃO: Enviando action "initial_audit" para diferenciar da etapa de e-mail (final_dispatch)
+      body: JSON.stringify({ ...payload, action: "initial_audit" })
     });
 
     if (response.ok) {
@@ -2813,11 +2815,64 @@ function setupGlobalListeners() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
 
-  document.getElementById("btnStartNewEntity")?.addEventListener("click", returnToLanding);
+  // ATUALIZAÇÃO 2: Botão Novo Cliente no final da tela limpa APENAS os dados da empresa, mantendo o operador!
+  const btnNewEntity = document.getElementById("btnStartNewEntity") || document.getElementById("btnCadastrarOutroCliente");
+  if (btnNewEntity) {
+    btnNewEntity.addEventListener("click", () => {
+      if (activeProfileKey) {
+        const profile = PROFILES[activeProfileKey];
+        localStorage.removeItem(API_CONFIG.STORAGE_PREFIX + profile.storageKey);
+      }
+      returnToLanding();
+    });
+  }
 
   document.getElementById("btnRetryWebhook")?.addEventListener("click", () => {
     if (lastCompiledPayload) dispatchToMakeWebhook(lastCompiledPayload);
   });
+
+  // ATUALIZAÇÃO 3: Lógica do botão verde para emitir disparo final com "action: final_dispatch"
+  const btnGoToApp1B = document.getElementById("btnGoToApp1B");
+  if (btnGoToApp1B) {
+    btnGoToApp1B.addEventListener("click", async (e) => {
+      e.preventDefault();
+      // Impede múltiplos envios ou clique antes de estar liberado
+      if (!lastCompiledPayload || btnGoToApp1B.classList.contains("opacity-50")) return;
+
+      const originalText = btnGoToApp1B.innerHTML;
+      btnGoToApp1B.innerHTML = "<span>⏳ Enviando Pacote para E-mail...</span>";
+      btnGoToApp1B.classList.add("opacity-50", "pointer-events-none");
+
+      try {
+        const webhookUrl = API_CONFIG?.MAKE_WEBHOOK_URL || MAKE_WEBHOOK_URL || DEFAULT_MAKE_URL;
+        const finalPayload = {
+          ...lastCompiledPayload,
+          action: "final_dispatch" // A FLAG MÁGICA PRO SEU MAKE IDENTIFICAR O E-MAIL!
+        };
+
+        const response = await fetch(webhookUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(finalPayload)
+        });
+
+        if (response.ok) {
+          btnGoToApp1B.innerHTML = "<span>✅ Pacote Enviado com Sucesso!</span>";
+          btnGoToApp1B.classList.remove("bg-emerald-600", "hover:bg-emerald-500");
+          btnGoToApp1B.classList.add("bg-slate-800", "text-emerald-400", "border-emerald-500");
+          
+          alert("Pacote emitido com sucesso!\n\nO dossiê técnico e o link de acesso seguro foram enviados para o seu e-mail cadastrado:\n" + (mentorshipState.mentor_student_email || "[E-mail não informado]"));
+        } else {
+          throw new Error("HTTP " + response.status);
+        }
+      } catch (err) {
+        console.error("Erro no envio final:", err);
+        btnGoToApp1B.innerHTML = "<span>⚠️ Falha de rede. Tentar Novamente</span>";
+        btnGoToApp1B.classList.remove("opacity-50", "pointer-events-none");
+        alert("Houve uma oscilação na rede ao enviar o pacote final para o e-mail. Tente clicar novamente.");
+      }
+    });
+  }
 }
 
 function formatCepMask(v) {
